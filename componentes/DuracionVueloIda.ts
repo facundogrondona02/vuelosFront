@@ -1,10 +1,11 @@
+import { Page } from "@playwright/test";
 import calcularPixelesDesdeHoraMinima from "../funciones/calcularPixelesDesdeHoraMinima";
 
 export default async function DuracionVueloIda({
   page,
   horaDeseada,
 }: {
-  page: any,
+  page: Page,
   horaDeseada: string
 }) {
 
@@ -16,7 +17,7 @@ export default async function DuracionVueloIda({
 
   const anchoVueloIda = boxVueloIda.width;
 
-  let horaMinimaParts = await page.locator(".row-filter-content-slider").nth(1)
+  const horaMinimaParts = await page.locator(".row-filter-content-slider").nth(1)
   const divs = await horaMinimaParts.locator("div").all();
 
   // Buscar el div que contiene exactamente dos span

@@ -1,11 +1,10 @@
 import { Page } from 'playwright';
 
 export default async function recorroListaVuelos(page: Page) {
- // Scroll hacia abajo 1000 píxeles
-await page.mouse.wheel(0, 1000);
+    // Scroll hacia abajo 1000 píxeles
+    await page.mouse.wheel(0, 1000);
 
-// Esperás un poco para que cargue lo que aparece tras el scroll
-await page.waitForTimeout(1000);
+    // Esperás un poco para que cargue lo que aparece tras el scroll
 
     console.log("Esperando que se cargue el contenido de la tabla...");
     const tablaBody = page.locator('//*[@id="content"]/div/div[2]/table/tbody');
@@ -31,39 +30,40 @@ await page.waitForTimeout(1000);
     console.log("Cantidad total de <tr>:", filasVisibles);
     console.log(`Cantidad de filas visibles: ${cantidadFilas}`);
 
-    for (let i = cantidadFilas - 1; i >= 0; i--) {
+    let precioFinal = ""
+
+    for (let i = 0; i < cantidadFilas; i++) {
         const fila = filasVisibles.nth(i);
         const contenedor = fila.locator('.baggage-cont');
+        console.log(`🔍 Revisando fila ${i}`);
 
         try {
-            // Intentamos capturar los distintos tipos de equipaje, con timeout corto
-            const equipajeManoHandle = await contenedor.locator('.baggage.hand').elementHandle({ timeout: 2000 }).catch(() => null);
-            const equipajeCarrionHandle = await contenedor.locator('.baggage.carry-on').elementHandle({ timeout: 2000 }).catch(() => null);
-            const equipajeBodegaHandle = await contenedor.locator('.baggage.dispatch').elementHandle({ timeout: 2000 }).catch(() => null);
+            const equipajeMano = contenedor.locator('.baggage.hand').first();
+            const equipajeCarrion = contenedor.locator('.baggage.carry-on').first();
+            const equipajeBodega = contenedor.locator('.baggage.dispatch').first();
 
-            const tieneMano = equipajeManoHandle
-                ? (await equipajeManoHandle.getAttribute('class'))?.includes('included') ?? false
-                : false;
+            // const tieneMano = (await equipajeMano.locator('.included').count() > 0) ? true : false;
+            // const tieneCarrion = (await equipajeCarrion.locator('.included').count() > 0) ? true : false;
+            // const tieneBodega = (await equipajeBodega.locator('.included').count() > 0 )? true : false;
+            const tieneMano = (await equipajeMano.getAttribute('class'))?.includes('included') ?? false;
+            const tieneCarrion = (await equipajeCarrion.getAttribute('class'))?.includes('included') ?? false;
+            const tieneBodega = (await equipajeBodega.getAttribute('class'))?.includes('included') ?? false;
 
-            const tieneCarrion = equipajeCarrionHandle
-                ? (await equipajeCarrionHandle.getAttribute('class'))?.includes('included') ?? false
-                : false;
 
-            const tieneBodega = equipajeBodegaHandle
-                ? (await equipajeBodegaHandle.getAttribute('class'))?.includes('included') ?? false
-                : false;
+            console.log("🧳 Mano:", tieneMano, " | Carrion:", tieneCarrion, " | Bodega:", tieneBodega);
 
-            // Si solo tiene equipaje de mano, la eliminamos
-            if (tieneMano && !tieneCarrion && !tieneBodega) {
-                const filaHandle = await fila.elementHandle();
-                if (filaHandle) {
-                    await page.evaluate((row) => row.remove(), filaHandle);
-                }
+            if (tieneCarrion || tieneBodega) {
+                const strongLocator =  fila.locator('strong.priceNumb')
+                console.log("strong locator ", strongLocator)
+                precioFinal = (await strongLocator.textContent()) ?? ''
+                break;
             }
+
         } catch (error) {
-            console.warn(`Error en fila ${i}:`, error);
+            console.warn(`⚠️ Error en fila ${i}:`, error);
         }
     }
+
 
     const precioHandle = await page
         .locator('//*[@id="content"]/div/div[2]/table/tbody/tr[1]/td/div/div[1]/div[3]/div[2]/div/div/strong')
@@ -72,5 +72,5 @@ await page.waitForTimeout(1000);
 
     const precioHandleText = await precioHandle?.textContent();
     console.log(`Precio del vuelo: ${precioHandleText ? precioHandleText.trim() : 'No disponible'}`);
-    return precioHandleText ? precioHandleText.trim() : 'No hay ningun vuelo disponible con estas opciones';
+    return precioFinal ? precioFinal.trim() : 'No hay ningun vuelo disponible con estas opciones';
 }

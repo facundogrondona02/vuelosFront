@@ -1,3 +1,4 @@
+import { Page } from "@playwright/test";
 import calcularPixelesDesdeHoraMinima from "../funciones/calcularPixelesDesdeHoraMinima";
 
 ////////////////////
@@ -5,7 +6,7 @@ export async function ajustarSliderVueloVuelta({
   page,
   horaDeseada,
 }: {
-  page: any,
+  page: Page,
   horaDeseada: string
 }) {
   const slider = page.locator('.input-slider').nth(3);
@@ -14,7 +15,7 @@ export async function ajustarSliderVueloVuelta({
 
   const ancho = boxSlider.width;
 
-  let horaMinimaParts = await page.locator(".row-filter-content-slider").nth(1)
+  const horaMinimaParts =  page.locator(".row-filter-content-slider").nth(1)
   const divs = await horaMinimaParts.locator("div").all();
 
   // Buscar el div que contiene exactamente dos span
@@ -29,8 +30,8 @@ export async function ajustarSliderVueloVuelta({
   const horaMinimaText = targetDiv.length > 0 ? await targetDiv[1].locator("span").nth(0).textContent() : null;
   const horamaximaText = targetDiv.length > 0 ? await targetDiv[1].locator("span").nth(1).textContent() : null;
 
-  const horaMinimaTextTrimmed = horaMinimaText?.split("hs")[0]?.trim()
-  const horamaximaTextTrimmed = horamaximaText?.split("hs")[0]?.trim()
+  const horaMinimaTextTrimmed = horaMinimaText?.split("hs")[0]?.trim() ?? ""
+  const horamaximaTextTrimmed = horamaximaText?.split("hs")[0]?.trim() ?? ""
 
   const pixelesDesdeMinima = calcularPixelesDesdeHoraMinima(horaMinimaTextTrimmed, horaDeseada, horamaximaTextTrimmed, ancho);
   const destinoX = boxSlider.x + pixelesDesdeMinima;

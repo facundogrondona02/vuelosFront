@@ -1,3 +1,4 @@
+import { Page } from "@playwright/test";
 import convertirHoraAPixeles from "../funciones/convertirHoraAPixeles";
 
 export default async function HorarioSalidaVuelta({
@@ -5,7 +6,7 @@ export default async function HorarioSalidaVuelta({
   inicioHoraVuelta,
   finHoraVuelta
 }: {
-  page: any,
+  page: Page,
   inicioHoraVuelta: string,
   finHoraVuelta: string
 }) {

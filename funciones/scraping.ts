@@ -154,7 +154,7 @@ export async function scrapingVuelos(
 
     // === VERIFICACIÓN DE RESULTADOS ===
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(1000);
 
     const tablaCount = await page.locator('//*[@id="content"]/div/div[2]/table/tbody').count();
     const isVisible = await page.locator('//*[@id="content"]/div/div[2]/table/tbody').first().isVisible();
