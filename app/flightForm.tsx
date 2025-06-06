@@ -1,40 +1,43 @@
 "use client";
 import React, { useState } from "react";
-import { FlightFormData } from "./types/types";
-const defaultFormData: FlightFormData = {
-  mail: "",
-  password: "",
-  originDeparture: "",
-  originReturn: "",
-  departureDate: "",
-  returnDate: "",
-  adults: 1,
-  children: 0,
-  infants: 0,
-  currency: "USD",
-  stops: "directo",
-  checkedBaggage: false,
-  horarioIdaEntre: "",
-  horarioIdaHasta: "",
-  horarioVueltaEntre: "",
-  horarioVueltaHasta: "",
-  maxDuracionIda: "25:00",
-  maxDuracionVuelta: "25:00",
-};
+import {  Mensaje } from "./types/types";
+// const defaultFormData: FlightFormData = {
+//   mail: "",
+//   password: "",
+//   originDeparture: "",
+//   originReturn: "",
+//   departureDate: "",
+//   returnDate: "",
+//   adults: 1,
+//   children: 0,
+//   infants: 0,
+//   currency: "USD",
+//   stops: "directo",
+//   checkedBaggage: false,
+//   horarioIdaEntre: "",
+//   horarioIdaHasta: "",
+//   horarioVueltaEntre: "",
+//   horarioVueltaHasta: "",
+//   maxDuracionIda: "25:00",
+//   maxDuracionVuelta: "25:00",
+// };
 
+const defaultMensaje : Mensaje  = {
+  mensaje:""
+}
 interface Props {
-  onSubmit: (data: FlightFormData) => void;
+  onSubmit: (data: Mensaje) => void;
 }
 
 export function FlightForm({ onSubmit }: Props) {
-  const [formData, setFormData] = useState<FlightFormData>(defaultFormData);
+  const [formData, setFormData] = useState<Mensaje>(defaultMensaje);
 
   function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) {
-    const target = e.target as HTMLInputElement | HTMLSelectElement;
+    const target = e.target as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
     const { name, value, type } = target;
-    setFormData((prev: FlightFormData) => ({
+    setFormData((prev: Mensaje) => ({
       ...prev,
       [name]:
         type === "checkbox"
@@ -47,13 +50,14 @@ export function FlightForm({ onSubmit }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (formData.adults + formData.children < 1) {
-      alert("Debe haber al menos una persona (adulto o niño).");
-      return;
-    }
-    console.log("Datos enviados:", formData);
+    console.log(formData);
     onSubmit(formData);
-    setFormData(defaultFormData); // Reset form after submission
+    // if (formData.adults + formData.children < 1) {
+    //   alert("Debe haber al menos una persona (adulto o niño).");
+    //   return;
+    // }
+    // console.log("Datos enviados:", formData);
+    // setFormData(defaultFormData); // Reset form after submission
   }
 
   return (
@@ -64,6 +68,19 @@ export function FlightForm({ onSubmit }: Props) {
       <h2 className="text-2xl font-semibold text-center text-gray-800">
         Formulario de búsqueda de vuelo
       </h2>
+      <label className="block">
+        <span className="text-gray-700 font-medium">Mensaje cliente:</span>
+        <textarea
+          name="mensaje"
+          value={formData.mensaje}
+          onChange={handleChange}
+          required
+          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2
+                 shadow-sm placeholder-gray-400 focus:border-indigo-500 focus:ring
+                 focus:ring-indigo-200 focus:ring-opacity-50"
+          placeholder="Mensaje cliente"
+        />
+      </label>
 
       {/* <label className="block">
         <span className="text-gray-700 font-medium">Mail:</span>

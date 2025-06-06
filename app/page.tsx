@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { FlightForm } from "./flightForm";
-import { FlightFormData } from "./types/types";
+import {  Mensaje } from "./types/types";
 // import { scrapingVuelos } from "@/funciones/scraping";
 // import Conex from "./conexion/conex";
 
@@ -31,8 +31,9 @@ export default function Home() {
   const [loading, setLoading] = useState<boolean>(false);
 
   // en tu componente React (frontend)
-  async function handleFlightFormSubmit(data: FlightFormData) {
+  async function handleFlightFormSubmit(data: Mensaje) {
     setLoading(true);
+    console.log(data, " data desde page")
     const res = await fetch("/api/scraping", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

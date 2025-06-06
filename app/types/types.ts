@@ -22,3 +22,8 @@ export interface FlightFormData {
     maxDuracionIda: string; // horas
     maxDuracionVuelta: string;    // horas
 }
+
+
+export interface Mensaje{
+    mensaje:string
+}

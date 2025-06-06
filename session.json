@@ -1,18 +1,8 @@
 {
   "cookies": [
     {
-      "name": "_ga",
-      "value": "GA1.1.1896529745.1748461352",
-      "domain": ".sudameria.com",
-      "path": "/",
-      "expires": 1783719063.138484,
-      "httpOnly": false,
-      "secure": false,
-      "sameSite": "Lax"
-    },
-    {
       "name": "ARRAffinity",
-      "value": "577483a680bdb7b9a3cb7e85aeb11a68f96077ec51e3aaf91048beafb0254a8f",
+      "value": "dd6858f6c5b3a396b31d1bce1f7f832ce9c5ea53ba76b93fe9bb5604b273b57c",
       "domain": ".aereos.sudameria.com",
       "path": "/",
       "expires": -1,
@@ -22,7 +12,7 @@
     },
     {
       "name": "ARRAffinitySameSite",
-      "value": "577483a680bdb7b9a3cb7e85aeb11a68f96077ec51e3aaf91048beafb0254a8f",
+      "value": "dd6858f6c5b3a396b31d1bce1f7f832ce9c5ea53ba76b93fe9bb5604b273b57c",
       "domain": ".aereos.sudameria.com",
       "path": "/",
       "expires": -1,
@@ -31,31 +21,41 @@
       "sameSite": "None"
     },
     {
-      "name": "_hjSessionUser_3632404",
-      "value": "eyJpZCI6IjI5NGRhZTE1LTVhNTctNTZhOC05MzNlLTU3ZDkyNDI1MGJhMSIsImNyZWF0ZWQiOjE3NDkxNTkwNjMxOTIsImV4aXN0aW5nIjpmYWxzZX0=",
+      "name": "_ga",
+      "value": "GA1.1.318491370.1749237580",
       "domain": ".sudameria.com",
       "path": "/",
-      "expires": 1780695063,
+      "expires": 1783797579.9877,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_hjSessionUser_3632404",
+      "value": "eyJpZCI6IjU3MTA1YjY1LWFlMTktNTlhNy04OWViLTE5NDI1NDZjZTQ0NyIsImNyZWF0ZWQiOjE3NDkyMzc1ODAwMzMsImV4aXN0aW5nIjpmYWxzZX0=",
+      "domain": ".sudameria.com",
+      "path": "/",
+      "expires": 1780773580,
       "httpOnly": false,
       "secure": true,
       "sameSite": "None"
     },
     {
       "name": "_hjSession_3632404",
-      "value": "eyJpZCI6ImFjN2E0OTJjLWI5MWEtNDc2MC1hZTJlLWIwYzlmZTUwN2EwNCIsImMiOjE3NDkxNTkwNjMxOTMsInMiOjAsInIiOjAsInNiIjowLCJzciI6MCwic2UiOjAsImZzIjoxLCJzcCI6MH0=",
+      "value": "eyJpZCI6ImU3YTM5NjcxLTJiZGMtNGYwYy05M2M1LTVjOWUzM2YyMWU1MyIsImMiOjE3NDkyMzc1ODAwMzQsInMiOjAsInIiOjAsInNiIjowLCJzciI6MCwic2UiOjAsImZzIjoxLCJzcCI6MX0=",
       "domain": ".sudameria.com",
       "path": "/",
-      "expires": 1749160863,
+      "expires": 1749239380,
       "httpOnly": false,
       "secure": true,
       "sameSite": "None"
     },
     {
       "name": "_ga_VZXJTFSSD2",
-      "value": "GS2.1.s1749159063$o2$g0$t1749159066$j57$l0$h0",
+      "value": "GS2.1.s1749237579$o1$g0$t1749237583$j56$l0$h0",
       "domain": ".sudameria.com",
       "path": "/",
-      "expires": 1783719066.864787,
+      "expires": 1783797583.303529,
       "httpOnly": false,
       "secure": false,
       "sameSite": "Lax"
@@ -67,7 +67,7 @@
       "localStorage": [
         {
           "name": "user",
-          "value": "{\"AccessToken\":\"eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNyc2Etc2hhMjU2IiwidHlwIjoiSldUIn0.eyJzdWIiOiJmcmFuY29AbWVsaW5jdWUudHVyLmFyIiwianRpIjoiN2Q3YzM2ZDktMTIxYy00ZDkzLWFlZWItNTBkY2QyNDY4ZjUzIiwiaWF0IjoxNzQ5MTU5MDcwLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjpbImZyYW5jb0BtZWxpbmN1ZS50dXIuYXIiLCJmcmFuY29AbWVsaW5jdWUudHVyLmFyIl0sIkNsYWltcy5DaGFubmVsIjoiR1dDIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvZW1haWxhZGRyZXNzIjoiZnJhbmNvQG1lbGluY3VlLnR1ci5hciIsIkNsYWltcy5Vc2VySWQiOiJhNDQwZGI1ZC0xNzE5LTRhZmEtYjJhYi1jNjBhNGZkYzllZjAiLCJDbGFpbXMuU2Vzc2lvbklkIjoiZjM3NjhmNGQtMDlkZC00NGU4LTliOWMtMzdlNmQwNTY0YWVhIiwiQ2xhaW1zLkNhblN3aXRjaENvbXBhbnkiOiJGYWxzZSIsIkNsYWltcy5Vc2VyRmlyc3ROYW1lIjoiRnJhbmNvIiwiQ2xhaW1zLlVzZXJMYXN0TmFtZSI6Ii4iLCJleHAiOjE3NDkyNDU0NzAsImlzcyI6Ik5ldHZpYXguR1dDIiwiYXVkIjoiTmV0dmlheC5HV0MuQXVkaWVuY2UifQ.ikPCJ47WsW9-pvg448QfPpI8i6OzCh37QWobgzNFffKwg0di86zUFnZaFuKD7qx355o6oRTUrM_aWtqIW6ddbPRCwEafjGzmCrv0oo34ttd4kPsg5yUOqjE_k_Pfn6f_T7qPmjMVBbv3KRsd3F59UXZvGpSbIuwJNVLxPEU_TtNtji1vbB1IfzlyA1gPo-2eW4EB2z5EAFglLwDu71TC6IvTwvE0p9ZAif2v5lqtuMdy5PgLZpNZ-D1QqJHVy391Lh0i7yc6oToZoFXlK3CcdK0UbKlm6wJsZGzuH0niMnKy_TB5YA1JoDZOWPVIzTlmwdrtxeQNU-jBY5RUh0Bq4w\",\"ExpiresInSeconds\":28800,\"IsUserSuccessfullyLogedIn\":true,\"CanSwitchCompany\":false,\"CanOperateOnBehalfOf\":false,\"UserId\":\"a440db5d-1719-4afa-b2ab-c60a4fdc9ef0\",\"SessionId\":\"f3768f4d-09dd-44e8-9b9c-37e6d0564aea\",\"TimeStamp\":\"2025-06-05T18:31:11.133-03:00\",\"Name\":\"franco@melincue.tur.ar\",\"Email\":\"franco@melincue.tur.ar\"}"
+          "value": "{\"AccessToken\":\"eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNyc2Etc2hhMjU2IiwidHlwIjoiSldUIn0.eyJzdWIiOiJmcmFuY29AbWVsaW5jdWUudHVyLmFyIiwianRpIjoiMjVjNDJkYzQtOTZlZC00NzEzLWE5NmEtZmM2MmRlNTBlZDA5IiwiaWF0IjoxNzQ5MjM3NTg3LCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjpbImZyYW5jb0BtZWxpbmN1ZS50dXIuYXIiLCJmcmFuY29AbWVsaW5jdWUudHVyLmFyIl0sIkNsYWltcy5DaGFubmVsIjoiR1dDIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvZW1haWxhZGRyZXNzIjoiZnJhbmNvQG1lbGluY3VlLnR1ci5hciIsIkNsYWltcy5Vc2VySWQiOiJhNDQwZGI1ZC0xNzE5LTRhZmEtYjJhYi1jNjBhNGZkYzllZjAiLCJDbGFpbXMuU2Vzc2lvbklkIjoiNjc4YzIzODQtODFjZi00ZWZhLTk5OTMtNTNlYjliNWVjMGI4IiwiQ2xhaW1zLkNhblN3aXRjaENvbXBhbnkiOiJGYWxzZSIsIkNsYWltcy5Vc2VyRmlyc3ROYW1lIjoiRnJhbmNvIiwiQ2xhaW1zLlVzZXJMYXN0TmFtZSI6Ii4iLCJleHAiOjE3NDkzMjM5ODcsImlzcyI6Ik5ldHZpYXguR1dDIiwiYXVkIjoiTmV0dmlheC5HV0MuQXVkaWVuY2UifQ.jfoYy7stDmEMEYNqWW5IeYohV1f2GkUDfeWyUxgpTVWQuwYlH_2Z9ZyGURZns5cbVKBs7-9ffTTA6Nf7qYahKVqxCprJK30MZkZAqUCViVNEgDc7soW9PbwqF6psOlrdjXR4KFUtt5e5Kct7d9E60WhTXgGWD0-5VZN0NB9Ca9z-oeLCpiT8mG30SsDw_OviP5UPo-qghz6PpjVqEdpYA4ntfA14gIxciZCQNgQ8yES9VeLKtIBrRnJuGW1SCerHjWhZdKckXl_-qoWT49VfMg4TPdh5ud4y7NNriBTqa3akBjs11_zmftafNXzqrFaok0lEOfGjFoCLQESAoKiaew\",\"ExpiresInSeconds\":28800,\"IsUserSuccessfullyLogedIn\":true,\"CanSwitchCompany\":false,\"CanOperateOnBehalfOf\":false,\"UserId\":\"a440db5d-1719-4afa-b2ab-c60a4fdc9ef0\",\"SessionId\":\"678c2384-81cf-4efa-9993-53eb9b5ec0b8\",\"TimeStamp\":\"2025-06-06T16:19:47.128-03:00\",\"Name\":\"franco@melincue.tur.ar\",\"Email\":\"franco@melincue.tur.ar\"}"
         },
         {
           "name": "Session.User.AuthenticationInformation.SelectedCompany",

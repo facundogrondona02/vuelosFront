@@ -13,8 +13,8 @@
 // interface ScrapingVuelosParams {
 //   mail: string,
 //   password: string,
-//   originDeparture: string;
-//   originReturn: string;
+//   origenIda: string;
+//   origenVuelta: string;
 //   departureDate: string;
 //   returnDate: string;
 //   adults: number;
@@ -40,8 +40,8 @@
 //   const {
 //     mail,
 //     password,
-//     originDeparture,
-//     originReturn,
+//     origenIda,
+//     origenVuelta,
 //     departureDate,
 //     returnDate,
 //     adults,
@@ -89,15 +89,15 @@
 //     // === ORIGEN Y DESTINO ===
 //     const origenInput =  page.getByRole('textbox', { name: 'BUE' });
 //     if (await origenInput.isVisible()) {
-//       await origenInput.fill(originDeparture);
-//       console.log("✔ Origen de salida llenado:", originDeparture);
+//       await origenInput.fill(origenIda);
+//       console.log("✔ Origen de salida llenado:", origenIda);
 //     }
 
 //     const destinoInput =  page.getByRole('textbox', { name: 'MIA' });
 //     if (await destinoInput.isVisible()) {
 //       await destinoInput.dblclick();
-//       await destinoInput.fill(originReturn);
-//       console.log("✔ Destino de regreso llenado:", originReturn);
+//       await destinoInput.fill(origenVuelta);
+//       console.log("✔ Destino de regreso llenado:", origenVuelta);
 //     }
 //     // === FECHAS ===
 //     const salidaInput =  page.locator(`//input[@placeholder='24SEP']`);
@@ -220,8 +220,8 @@ import HorarioSalidaVuelta from '../componentes/HorarioSalidaVuelta';
 interface ScrapingVuelosParams {
   mail: string,
   password: string,
-  originDeparture: string,
-  originReturn: string,
+  origenIda: string,
+  origenVuelta: string,
   departureDate: string,
   returnDate: string,
   adults: number,
@@ -265,8 +265,8 @@ export async function scrapingVuelos(params: ScrapingVuelosParams): Promise<Vuel
   const {
     mail,
     password,
-    originDeparture,
-    originReturn,
+    origenIda,
+    origenVuelta,
     departureDate,
     returnDate,
     adults,
@@ -304,15 +304,15 @@ export async function scrapingVuelos(params: ScrapingVuelosParams): Promise<Vuel
     // === ORIGEN Y DESTINO ===
     const origenInput = page.getByRole('textbox', { name: 'BUE' });
     if (await origenInput.isVisible()) {
-      await origenInput.fill(originDeparture);
-      console.log("✔ Origen de salida llenado:", originDeparture);
+      await origenInput.fill(origenIda);
+      console.log("✔ Origen de salida llenado:", origenIda);
     }
 
     const destinoInput = page.getByRole('textbox', { name: 'MIA' });
     if (await destinoInput.isVisible()) {
       await destinoInput.dblclick();
-      await destinoInput.fill(originReturn);
-      console.log("✔ Destino de regreso llenado:", originReturn);
+      await destinoInput.fill(origenVuelta);
+      console.log("✔ Destino de regreso llenado:", origenVuelta);
     }
 
     // === FECHAS ===
