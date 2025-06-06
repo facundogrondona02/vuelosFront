@@ -65,7 +65,7 @@ export function FlightForm({ onSubmit }: Props) {
         Formulario de búsqueda de vuelo
       </h2>
 
-      <label className="block">
+      {/* <label className="block">
         <span className="text-gray-700 font-medium">Mail:</span>
         <input
           type="email"
@@ -361,7 +361,7 @@ export function FlightForm({ onSubmit }: Props) {
                    focus:ring-opacity-50"
           />
         </label>
-      </div>
+      </div> */}
 
       <button
         type="submit"

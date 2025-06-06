@@ -30,7 +30,29 @@ export default async function recorroListaVuelos(page: Page) {
     console.log("Cantidad total de <tr>:", filasVisibles);
     console.log(`Cantidad de filas visibles: ${cantidadFilas}`);
 
-    let precioFinal = ""
+    // let precioFinal = ""
+
+    const vueloFinal = {
+        precioFinal: "",
+        aeropuertoIda: "",
+        horarioSalidaIda: "",
+        ciudadOrigenIda: "",
+        horarioSupongoDuracionIda: "",
+        escalasIda: "",
+        horarioSupongoLlegadaIda: "",
+        aeropuertoDestinoIda: "",
+        ciudadDestinoIda: "",
+        aeropuertoVuelta: "",
+        horarioSalidaVuelta: "",
+        ciudadOrigenVuelta: "",
+        horarioSupongoDuracionVuelta: "",
+        escalasVuelta: "",
+        horarioSupongoLlegadaVuelta: "",
+        aeropuertoDestinoVuelta: "",
+        ciudadDestinoVuelta: "",
+        aerolinea: ""
+
+    }
 
     for (let i = 0; i < cantidadFilas; i++) {
         const fila = filasVisibles.nth(i);
@@ -53,12 +75,37 @@ export default async function recorroListaVuelos(page: Page) {
             console.log("🧳 Mano:", tieneMano, " | Carrion:", tieneCarrion, " | Bodega:", tieneBodega);
 
             if (tieneCarrion || tieneBodega) {
-                const strongLocator =  fila.locator('strong.priceNumb')
+                const strongLocator = fila.locator('strong.priceNumb')
                 console.log("strong locator ", strongLocator)
-                precioFinal = (await strongLocator.textContent()) ?? ''
+                vueloFinal.precioFinal = (await strongLocator.textContent()) ?? "";
+                vueloFinal.aeropuertoIda = (await fila.locator('//*[@id="showDetail"]/div[1]/div[2]/div[1]/div[1]/span[1]').textContent()) ?? "";
+                vueloFinal.horarioSalidaIda = (await fila.locator('//*[@id="showDetail"]/div[1]/div[2]/div[1]/div[1]/span[2]/strong').textContent()) ?? "";
+                vueloFinal.ciudadOrigenIda = (await fila.locator('//*[@id="showDetail"]/div[1]/div[2]/div[1]/div[2]/span').textContent()) ?? "";
+                vueloFinal.horarioSupongoDuracionIda = (await fila.locator('//*[@id="showDetail"]/div[1]/div[2]/div[2]/span[1]').textContent()) ?? "";
+                vueloFinal.escalasIda = (await fila.locator('//*[@id="showDetail"]/div[1]/div[2]/div[2]/span[2]').textContent()) ?? "";
+                vueloFinal.horarioSupongoLlegadaIda = (await fila.locator('//*[@id="showDetail"]/div[1]/div[2]/div[3]/div[1]/span[1]/strong').textContent()) ?? "";
+                vueloFinal.aeropuertoDestinoIda = (await fila.locator('//*[@id="showDetail"]/div[1]/div[2]/div[3]/div[1]/span[2]').textContent()) ?? "";
+                vueloFinal.ciudadDestinoIda = (await fila.locator('//*[@id="showDetail"]/div[1]/div[2]/div[3]/div[2]/span').textContent()) ?? "";
+
+                vueloFinal.aeropuertoVuelta = (await fila.locator('//*[@id="showDetail"]/div[3]/div[2]/div[1]/div[1]/span[1]').textContent()) ?? "";
+                vueloFinal.horarioSalidaVuelta = (await fila.locator('//*[@id="showDetail"]/div[3]/div[2]/div[1]/div[1]/span[2]').textContent()) ?? "";
+                vueloFinal.ciudadOrigenVuelta = (await fila.locator('//*[@id="showDetail"]/div[3]/div[2]/div[1]/div[2]/span').textContent()) ?? "";
+                vueloFinal.horarioSupongoDuracionVuelta = (await fila.locator('//*[@id="showDetail"]/div[3]/div[2]/div[2]/span[1]').textContent()) ?? "";
+                vueloFinal.escalasVuelta = (await fila.locator('//*[@id="showDetail"]/div[3]/div[2]/div[2]/span[2]').textContent()) ?? "";
+                vueloFinal.horarioSupongoLlegadaVuelta = (await fila.locator('//*[@id="showDetail"]/div[3]/div[2]/div[3]/div[1]/span[1]/strong').textContent()) ?? "";
+                vueloFinal.aeropuertoDestinoVuelta = (await fila.locator('//*[@id="showDetail"]/div[3]/div[2]/div[3]/div[1]/span[2]').textContent()) ?? "";
+                vueloFinal.ciudadDestinoVuelta = (await fila.locator('//*[@id="showDetail"]/div[3]/div[2]/div[3]/div[2]/span').textContent()) ?? "";
+
+                vueloFinal.aerolinea = (await fila.locator('//*[@id="showDetail"]/div[3]/div[1]/img').getAttribute('title')) ?? "";
+
+
+
+                console.log("horario salida ida ", vueloFinal) 
+
+
+
                 break;
             }
-
         } catch (error) {
             console.warn(`⚠️ Error en fila ${i}:`, error);
         }
@@ -72,5 +119,7 @@ export default async function recorroListaVuelos(page: Page) {
 
     const precioHandleText = await precioHandle?.textContent();
     console.log(`Precio del vuelo: ${precioHandleText ? precioHandleText.trim() : 'No disponible'}`);
-    return precioFinal ? precioFinal.trim() : 'No hay ningun vuelo disponible con estas opciones';
+
+
+    return vueloFinal ? vueloFinal : 'No hay ningun vuelo disponible con estas opciones';
 }
