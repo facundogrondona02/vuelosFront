@@ -171,7 +171,7 @@
 
 //     console.log("⌛ Ajustando duración máxima de vuelo vuelta a:", maxDuracionVuelta);
 //     await ajustarSliderVueloVuelta({ page, horaDeseada: maxDuracionVuelta });
-    
+
 //     // === APLICAR FILTROS ===
 //     await page.locator('//*[@id="app"]/div[3]/div[1]/div[2]/div[2]/button[3]').click();
 //     console.log("✔ Filtros aplicados");
@@ -238,30 +238,30 @@ interface ScrapingVuelosParams {
   // otros params que necesites
 }
 
-type VueloFinal ={
-    precioFinal: string;
-    aeropuertoIda: string;
-    horarioSalidaIda: string;
-    ciudadOrigenIda: string;
-    horarioSupongoDuracionIda: string;
-    escalasIda: string;
-    horarioSupongoLlegadaIda: string;
-    aeropuertoDestinoIda: string;
-    ciudadDestinoIda: string;
-    aeropuertoVuelta: string;
-    horarioSalidaVuelta: string;
-    ciudadOrigenVuelta: string;
-    horarioSupongoDuracionVuelta: string;
-    escalasVuelta: string;
-    horarioSupongoLlegadaVuelta: string;
-    aeropuertoDestinoVuelta: string;
-    ciudadDestinoVuelta: string;
-    aerolinea: string;
+type VueloFinal = {
+  precioFinal: string;
+  aeropuertoIda: string;
+  horarioSalidaIda: string;
+  ciudadOrigenIda: string;
+  horarioSupongoDuracionIda: string;
+  escalasIda: string;
+  horarioSupongoLlegadaIda: string;
+  aeropuertoDestinoIda: string;
+  ciudadDestinoIda: string;
+  aeropuertoVuelta: string;
+  horarioSalidaVuelta: string;
+  ciudadOrigenVuelta: string;
+  horarioSupongoDuracionVuelta: string;
+  escalasVuelta: string;
+  horarioSupongoLlegadaVuelta: string;
+  aeropuertoDestinoVuelta: string;
+  ciudadDestinoVuelta: string;
+  aerolinea: string;
 };
 
 
 
-export async function scrapingVuelos(params: ScrapingVuelosParams): Promise<VueloFinal  | undefined> {
+export async function scrapingVuelos(params: ScrapingVuelosParams): Promise<VueloFinal | undefined> {
   const {
     mail,
     password,
@@ -317,17 +317,21 @@ export async function scrapingVuelos(params: ScrapingVuelosParams): Promise<Vuel
 
     // === FECHAS ===
     const salidaInput = page.locator(`//input[@placeholder='24SEP']`);
-    const regresoInput = page.locator(`//input[@placeholder='10OCT']`);
+
     if (await salidaInput.isVisible()) {
       await salidaInput.fill(departureDate);
       console.log("✔ Fecha de salida completada:", departureDate);
     }
+    await page.waitForTimeout(3000);
+    console.log(returnDate, " retorno")
+    const regresoInput = page.locator(`//input[@placeholder='10OCT']`);
     if (await regresoInput.isVisible()) {
+      await regresoInput.fill("");
       await regresoInput.fill(returnDate);
       console.log("✔ Fecha de regreso completada:", returnDate);
     }
-
-    // === PASAJEROS ===
+    //*[@id="frm"]/div[1]/div[4]/div //*[@id="frm"]/div[1]/div[4]/div/div[1]/div[1]/span[1]/input[1]    //*[@id="meRAIlqldU"]/span/button   meRAIlqldU
+    //     // === PASAJEROS ===   
     const adultosInput = page.locator("//input[@placeholder='1' and contains(@class,'input search-input')]");
     const ninosInput = page.locator("//input[@placeholder='0' and contains(@class,'input search-input')]").nth(0);
     const infantesInput = page.locator("//input[@placeholder='0' and contains(@class,'input search-input')]").nth(1);
@@ -359,6 +363,8 @@ export async function scrapingVuelos(params: ScrapingVuelosParams): Promise<Vuel
     console.log("✔ Click en Buscar vuelos. Esperando resultados...");
 
     // === FILTROS DE ESCALAS ===
+    await page.waitForTimeout(5000);
+
     await page.locator('//*[@id="content"]/div/div[1]/div/div[2]/div[1]/button').click();
     console.log("✔ Filtros abiertos");
 
@@ -394,7 +400,7 @@ export async function scrapingVuelos(params: ScrapingVuelosParams): Promise<Vuel
 
     // === ESPERAR RESULTADOS ===
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(3000);
 
     const tablaCount = await page.locator('//*[@id="content"]/div/div[2]/table/tbody').count();
     const isVisible = await page.locator('//*[@id="content"]/div/div[2]/table/tbody').first().isVisible();
@@ -405,6 +411,8 @@ export async function scrapingVuelos(params: ScrapingVuelosParams): Promise<Vuel
     }
 
     // === RECORRER LISTA DE VUELOS ===
+    await page.waitForTimeout(3000);
+
     const res = await recorroListaVuelos(page);
 
     if (res === "No hay ningun vuelo disponible con estas opciones") {

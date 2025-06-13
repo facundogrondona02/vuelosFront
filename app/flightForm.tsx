@@ -23,7 +23,8 @@ import {  Mensaje } from "./types/types";
 // };
 
 const defaultMensaje : Mensaje  = {
-  mensaje:""
+  mensaje:"",
+  multibusqueda:false
 }
 interface Props {
   onSubmit: (data: Mensaje) => void;
@@ -78,6 +79,17 @@ export function FlightForm({ onSubmit }: Props) {
           className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2
                  shadow-sm placeholder-gray-400 focus:border-indigo-500 focus:ring
                  focus:ring-indigo-200 focus:ring-opacity-50"
+          placeholder="Mensaje cliente"
+        />
+      </label>
+
+            <label className="block">
+        <span className="text-gray-700 font-medium">Multi Busqueda:</span>
+        <input
+          name="multibusqueda"
+          type="checkbox"
+          onChange={handleChange}
+          className=""
           placeholder="Mensaje cliente"
         />
       </label>

@@ -45,8 +45,8 @@ test.use({ storageState: 'storage/estadoSesion.json' });
 const sampleFlightData = {
   mail: 'franco@melincue.tur.ar',
   password: 'Francomase12!',
-  originDeparture: 'BUE',
-  originReturn: 'MIA',
+  origenIda: 'BUE',
+  origenVuelta: 'MIA',
   departureDate: '10SEP',
   returnDate: '28SEP',
   adults: 3,

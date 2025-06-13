@@ -25,5 +25,6 @@ export interface FlightFormData {
 
 
 export interface Mensaje{
-    mensaje:string
+    mensaje:string,
+    multibusqueda:boolean
 }
