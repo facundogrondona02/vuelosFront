@@ -3,7 +3,7 @@ import json
 import ollama
 import json
 import re
-
+import os
 # Convertir el dict a string JSON con indentación para legibilidad
 def generar_multi_busqueda(mensaje):
     with open('IA/ejemplos.json', 'r', encoding='utf-8') as f:
@@ -153,55 +153,18 @@ def fusionar_resultados(fechas, parametros):
 
     return resultado_semifinal
 
+
+
+def cargar_destinos():
+    ruta_archivo = r'C:\Users\facun\FrancoMonolitico\vuelos-front\data\destinos.json'
+    with open(ruta_archivo, 'r') as f:
+        destinos = json.load(f)
+    # Devolvemos un diccionario con clave origenVuelta para buscar fácil después
+    return { destino["origenVuelta"]: destino for destino in destinos }
+
 def completar_objetos_finales(lista_vuelos):
-    # Tabla de datos por ciudad
-    tabla_destinos = {
-        "GIG": {
-            "maxDuracionIda": "12:00",
-            "maxDuracionVuelta": "15:00",
-            "horarioIdaEntre": "06:00",
-            "horarioIdaHasta": "10:00",
-            "horarioVueltaEntre": "13:00",
-            "horarioVueltaHasta": "21:00",
-            "stops": "Directo"
-        },
-        "GRU": {
-            "maxDuracionIda": "12:00",
-            "maxDuracionVuelta": "15:00",
-            "horarioIdaEntre": "06:00",
-            "horarioIdaHasta": "10:00",
-            "horarioVueltaEntre": "13:00",
-            "horarioVueltaHasta": "21:00",
-            "stops": "1 escala"
-        },
-        "MAD": {
-            "maxDuracionIda": "20:00",
-            "maxDuracionVuelta": "22:00",
-            "horarioIdaEntre": "13:00",
-            "horarioIdaHasta": "18:00",
-            "horarioVueltaEntre": "13:00",
-            "horarioVueltaHasta": "22:00",
-            "stops": "2 escalas"
-        },
-        "CUN": {
-            "maxDuracionIda": "24:00",
-            "maxDuracionVuelta": "25:00",
-            "horarioIdaEntre": "06:00",
-            "horarioIdaHasta": "23:00",
-            "horarioVueltaEntre": "09:00",
-            "horarioVueltaHasta": "22:00",
-            "stops": "1 escala"
-        },
-        "PUJ": {
-            "maxDuracionIda": "25:00",
-            "maxDuracionVuelta": "22:00",
-            "horarioIdaEntre": "06:00",
-            "horarioIdaHasta": "23:00",
-            "horarioVueltaEntre": "08:00",
-            "horarioVueltaHasta": "22:00",
-            "stops": "Directo"
-        }
-    }
+    # Acá ya no va hardcodeado, lo cargamos dinámicamente
+    tabla_destinos = cargar_destinos()
 
     resultado_final = []
 
@@ -230,18 +193,18 @@ def completar_objetos_finales(lista_vuelos):
             "infants": vuelo.get("infants", 0),
             "currency": "USD",
             "checkedBaggage": False,
-            "maxDuracionIda": datos_destino["maxDuracionIda"],
-            "maxDuracionVuelta": datos_destino["maxDuracionVuelta"],
-            "horarioIdaEntre": datos_destino["horarioIdaEntre"],
-            "horarioIdaHasta": datos_destino["horarioIdaHasta"],
-            "horarioVueltaEntre": datos_destino["horarioVueltaEntre"],
-            "horarioVueltaHasta": datos_destino["horarioVueltaHasta"],
-            "stops": datos_destino["stops"]
+            "maxDuracionIda": datos_destino.get("maxDuracionIda", ""),
+            "maxDuracionVuelta": datos_destino.get("maxDuracionVuelta", ""),
+            "horarioIdaEntre": datos_destino.get("horarioIdaEntre", ""),
+            "horarioIdaHasta": datos_destino.get("horarioIdaHasta", ""),
+            "horarioVueltaEntre": datos_destino.get("horarioVueltaEntre", ""),
+            "horarioVueltaHasta": datos_destino.get("horarioVueltaHasta", ""),
+            "stops": datos_destino.get("stops", "")
         }
 
         resultado_final.append(vuelo_completo)
 
-    return resultado_final 
+    return resultado_final
 
 
 def limpiar_json(content):

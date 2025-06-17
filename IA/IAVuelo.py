@@ -135,56 +135,18 @@ Mensaje del cliente:
     return resultado_json
 
 
+def cargar_destinos():
+    ruta_archivo = r'C:\Users\facun\FrancoMonolitico\vuelos-front\data\destinos.json'
+    with open(ruta_archivo, 'r') as f:
+        destinos = json.load(f)
+    # Devolvemos un diccionario con clave origenVuelta para buscar fácil después
+    return { destino["origenVuelta"]: destino for destino in destinos }
+
+
 def completar_objetos_finales(vuelo):
     # Tabla de datos por ciudad
-    tabla_destinos = {
-        "GIG": {
-            "maxDuracionIda": "12:00",
-            "maxDuracionVuelta": "15:00",
-            "horarioIdaEntre": "06:00",
-            "horarioIdaHasta": "10:00",
-            "horarioVueltaEntre": "13:00",
-            "horarioVueltaHasta": "21:00",
-            "stops": "Directo"
-        },
-        "GRU": {
-            "maxDuracionIda": "12:00",
-            "maxDuracionVuelta": "15:00",
-            "horarioIdaEntre": "06:00",
-            "horarioIdaHasta": "10:00",
-            "horarioVueltaEntre": "13:00",
-            "horarioVueltaHasta": "21:00",
-            "stops": "1 escala"
-        },
-        "MAD": {
-            "maxDuracionIda": "20:00",
-            "maxDuracionVuelta": "22:00",
-            "horarioIdaEntre": "13:00",
-            "horarioIdaHasta": "18:00",
-            "horarioVueltaEntre": "13:00",
-            "horarioVueltaHasta": "22:00",
-            "stops": "2 escalas"
-        },
-        "CUN": {
-            "maxDuracionIda": "24:00",
-            "maxDuracionVuelta": "25:00",
-            "horarioIdaEntre": "06:00",
-            "horarioIdaHasta": "23:00",
-            "horarioVueltaEntre": "09:00",
-            "horarioVueltaHasta": "22:00",
-            "stops": "1 escala"
-        },
-        "PUJ": {
-            "maxDuracionIda": "25:00",
-            "maxDuracionVuelta": "22:00",
-            "horarioIdaEntre": "06:00",
-            "horarioIdaHasta": "23:00",
-            "horarioVueltaEntre": "08:00",
-            "horarioVueltaHasta": "22:00",
-            "stops": "Directo"
-        }
-    }
-
+    tabla_destinos = cargar_destinos()
+   
     origen = vuelo.get("origenVuelta", "")
     datos_destino = tabla_destinos.get(origen, {...})
 

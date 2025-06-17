@@ -57,8 +57,17 @@ export async function POST(req: Request) {
       respuestas.push(respuesta);
     }
   }
-  console.log(respuestas, " respuestas pre")
-  const jsonData = JSON.stringify(respuestas); 
+  const limpiarIATA = (respuestas) => {
+  return respuestas.map(vuelo => ({
+    ...vuelo,
+    aeropuertoDestinoIda: vuelo.aeropuertoDestinoIda.slice(0,3),
+    aeropuertoDestinoVuelta: vuelo.aeropuertoDestinoVuelta.split('/n')[0].trim()
+  }));
+};
+
+const datosvuelosfinales =limpiarIATA(respuestas)
+console.log(respuestas, " respuestas pre")
+  const jsonData = JSON.stringify(datosvuelosfinales); 
   const response = await generarRespuesta(jsonData)
   console.log(response, " respuestas")
   return NextResponse.json({ result: response });

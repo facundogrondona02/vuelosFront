@@ -8,33 +8,54 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 def generar_respuesta(mensaje):
     prompt = f"""
-Vas a recibir un array que puede tener uno o más objetos, cada uno con información detallada sobre vuelos. Tu tarea es generar un mensaje cálido y profesional para enviarle a un cliente por WhatsApp o chat.
+Vas a recibir un array de uno o más vuelos de ida y vuelta, en formato JSON. Cada objeto representa un vuelo completo con información como horarios, aeropuertos, escalas, duración, aerolínea y precio.
 
-**IMPORTANTE:**
-- NO devuelvas JSON ni estructuras de objetos.
-- SOLO devolveme un mensaje en lenguaje natural.
-- El mensaje debe tener buena redacción, con signos y emojis si querés, para hacerlo más humano.
-- NO hagas preguntas, NO cierres el mensaje con "¿Querés avanzar con esta opción?", "¿Querés que te muestre más?" ni similares. **Solo informá**.
+🎯 Tu tarea es generar un mensaje cálido, profesional y listo para enviar por WhatsApp o chat, con los siguientes criterios:
 
-**Si hay un solo vuelo:**
-- Explicá todos los datos del vuelo de forma clara:
-  - Aerolínea
-  - Ciudad y aeropuerto de salida
-  - Horario y duración estimada de ida y de vuelta
-  - Escalas (detallá si es directo o con conexión, y por dónde)
-  - Precio final
+---
 
-**Si hay más de un vuelo:**
-- Mostrá todas las opciones con claridad.
-- Hacé una breve comparación entre ellas.
-- Recomendá la mejor opción, preferentemente la más económica si vale la pena, o explicá por qué otra sería mejor (por duración, escalas, etc.).
-- **NO cierres con preguntas ni llamadas a la acción.**
+🛫 **SI HAY SOLO UN VUELO:**
 
-**Formato de cada vuelo** (los datos te van a llegar en este formato):
+Mostralo exactamente con este formato (reemplazando los valores entre llaves con los datos del JSON):
 
+---
+Cotización aérea a {{ciudadDestinoIda}}.
 
+✈️ Aéreo de {{aerolinea}} con equipaje de mano de 10kg + bolso de mano.
 
-Mensaje del cliente:
+Horarios:
+ida:
+{{aeropuertoIda}} {{horarioSalidaIda}}
+Llegada: {{aeropuertoDestinoIda}} {{horarioSupongoLlegadaIda}} (Duración: {{horarioSupongoDuracionIda}})
+{{escalasIda}}
+vuelta:
+{{aeropuertoVuelta}} {{horarioSalidaVuelta}}
+Llegada: {{aeropuertoDestinoVuelta}} {{horarioSupongoLlegadaVuelta}} (Duración: {{horarioSupongoDuracionVuelta}})
+{{escalasVuelta}}
+
+💰 Precio final: {{precioFinal}} USD
+---
+
+📌 Asegurate de reemplazar todas las {{llaves}} por los valores reales del vuelo.
+
+---
+
+🧠 **SI HAY VARIOS VUELOS:**
+
+1. Mostralos uno por uno usando el formato anterior.
+2. Al final, redactá una comparación clara y profesional entre las opciones.
+3. Recomendá una opción, justificando por qué (por ejemplo: menor precio, menos escalas, menor duración o mejor horario).
+4. No repitas el nombre del destino en cada uno si es el mismo.
+5. No devuelvas el JSON ni menciones estructuras técnicas.
+
+---
+
+💡 Tono: cálido, humano, claro. Podés usar emojis para darle cercanía. No hagas preguntas de cierre (como “¿Querés avanzar?”). Simplemente entregá la información con claridad y calidez.
+
+📩 Al final, entregá solo el mensaje para el cliente, con los datos ya reemplazados.
+
+Aquí está el mensaje del cliente para que trabajes:
+
 \"\"\"{mensaje}\"\"\"
 """
 

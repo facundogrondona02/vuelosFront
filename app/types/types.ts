@@ -28,3 +28,15 @@ export interface Mensaje{
     mensaje:string,
     multibusqueda:boolean
 }
+
+export interface FormData {
+  ciudad: string;
+  origenVuelta: string;
+  maxDuracionIda: string;
+  maxDuracionVuelta: string;
+  horarioIdaEntre: string;
+  horarioIdaHasta: string;
+  horarioVueltaEntre: string;
+  horarioVueltaHasta: string;
+  stops: string;
+};
