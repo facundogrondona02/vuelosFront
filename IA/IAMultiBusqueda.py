@@ -4,6 +4,7 @@ import ollama
 import json
 import re
 import os
+from rapidfuzz import process, fuzz
 # Convertir el dict a string JSON con indentación para legibilidad
 def generar_multi_busqueda(mensaje):
     with open('IA/ejemplos.json', 'r', encoding='utf-8') as f:
@@ -83,7 +84,7 @@ def generar_todo_lo_demas(mensaje):
     prompt2= f"""
 Sos una IA que recibe mensajes en español y debe devolver solo un único objeto JSON con las siguientes claves exactas:
 
-- origenVuelta: código IATA del destino detectado en el mensaje (ej: MIA, PUJ, MAD, etc.)
+- origenVuelta: lugar de destino, puede ser un ciudad o pais
 - adults: cantidad de adultos (mayores de 12 años)
 - children: cantidad de niños (3 a 11 años)
 - infants: cantidad de bebés menores de 3 años
@@ -98,17 +99,7 @@ Reglas:
 - Completar todos los campos obligatorios, ningún campo vacío o nulo.
 
 Para determinar el origenVuelta:
-
-- Buscá en el mensaje palabras o frases que indiquen la ciudad de destino (por ejemplo: "quiero viajar a Madrid", "me gustaría ir a Punta Cana", "vamos a Cancún", etc).
-- Cuando detectes una de estas ciudades, asigná el código IATA correspondiente según la siguiente tabla:
-
-| Ciudad         | Código IATA |
-|----------------|-------------|
-| Río de Janeiro | GIG         |
-| São Paulo      | GRU         |
-| Madrid         | MAD         |
-| Cancún         | CUN         |
-| Punta Cana     | PUJ         |
+Tenes que interpretar el lugar donde quiere ir el cliente segun el mensaje, puede ser madrid, Cancun, o lo que sea tenes que ver el destino y rempazarlo en 'origenVuelta' del objeto final
 
 Solo devolver un único objeto JSON, sin texto adicional ni explicaciones.
 
@@ -153,6 +144,49 @@ def fusionar_resultados(fechas, parametros):
 
     return resultado_semifinal
 
+
+
+def obtener_codigos_iata_lista(destinos, ruta_json="data/codigoIATA.json"):
+    if not isinstance(destinos, list):
+        print("Error: Se esperaba una lista de objetos destino.")
+        return destinos
+
+    try:
+        with open(ruta_json, "r", encoding="utf-8") as f:
+            destinos_data = json.load(f)
+    except Exception as e:
+        print(f"Error cargando {ruta_json}: {e}")
+        return destinos
+
+    ciudades = [d["ciudad"].lower().strip() for d in destinos_data]
+
+    for destino_obj in destinos:
+        if not isinstance(destino_obj, dict):
+            continue
+
+        destino_usuario = destino_obj.get("origenVuelta", "").lower().strip()
+        if not destino_usuario:
+            continue
+
+        mejor_coincidencia = process.extractOne(
+            destino_usuario,
+            ciudades,
+            scorer=fuzz.WRatio
+        )
+
+        if mejor_coincidencia:
+            ciudad_match, score, _ = mejor_coincidencia
+            if score >= 70:
+                for d in destinos_data:
+                    if d["ciudad"].lower().strip() == ciudad_match:
+                        destino_obj["origenVuelta"] = d["codigoIATA"]
+                        break
+            else:
+                print(f"No coincidencia confiable para '{destino_usuario}' (score={score})")
+        else:
+            print(f"No se encontró ninguna coincidencia para '{destino_usuario}'")
+
+    return destinos
 
 
 def cargar_destinos():
@@ -231,5 +265,6 @@ if __name__ == "__main__":
     fechas = generar_multi_busqueda(mensaje)
     parametros = generar_todo_lo_demas(mensaje)
     resultado = fusionar_resultados(fechas, parametros)
-    resultadoFinal = completar_objetos_finales(resultado)
+    destinoFinal =obtener_codigos_iata_lista(resultado)
+    resultadoFinal = completar_objetos_finales(destinoFinal)
     print(json.dumps(resultadoFinal, indent=2, ensure_ascii=False))

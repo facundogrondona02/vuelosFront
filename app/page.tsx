@@ -5,7 +5,7 @@ import { Mensaje, FormData } from "./types/types";
 import { MostrarDestinos } from "./mostrarDestinos";
 
 export default function Home() {
-  const [mensaje, setMensaje] = useState<string | null>("null");
+  const [mensaje, setMensaje] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [verForm, setVerForm] = useState<boolean>(false);
 
@@ -42,7 +42,7 @@ export default function Home() {
         <div>
           <button
             onClick={() => setVerForm(false)}
-            className="font-semibold py-2 px-4 rounded text-white transition cursor-pointer bg-blue-600 hover:bg-blue-700 cursor-pointer"
+            className="font-semibold py-2 px-4 rounded text-white transition  bg-blue-600 hover:bg-blue-700 cursor-pointer"
           >
             Mensaje cliente
           </button>
@@ -52,7 +52,7 @@ export default function Home() {
         <div>
           <button
             onClick={() => setVerForm(true)}
-            className="font-semibold py-2 px-4 rounded text-white transition cursor-pointer bg-blue-600 hover:bg-blue-700 cursor-pointer"
+            className="font-semibold py-2 px-4 rounded text-white transition  bg-blue-600 hover:bg-blue-700 cursor-pointer"
           >
             Destinos
           </button>

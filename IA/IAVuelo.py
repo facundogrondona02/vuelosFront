@@ -3,38 +3,39 @@ import json
 import ollama
 import json
 import re
+from rapidfuzz import process, fuzz
+
 def generar_json_desde_mensaje(mensaje):
     with open('IA/ejemplos.json', 'r', encoding='utf-8') as f:
         template_json = json.load(f)
-
+    with open('data/codigoIATA.json', 'r', encoding='utf-8')as cod:
+        codigos = json.load(cod) 
 # Convertir el dict a string JSON con indentación para legibilidad
     template_str = json.dumps(template_json, indent=2, ensure_ascii=False)
-
+    codigos_IATA = json.dumps(codigos, indent=2, ensure_ascii=False)
     prompt = f"""
 Sos una IA que recibe mensajes de clientes y devuelve un objeto  con los datos del vuelo.
 
 Tu tarea es:
 - Interpretar pasajeros
 - Detectar fechas
-- Detectar el destino y devolver el código IATA correspondiente.
+- Detectar el destino y devolver el lugar donde entendes que va a ir
 
 Respondé SOLO con el objeto JSON puro (sin texto adicional, sin explicaciones).
 
-{template_str}
 
-- origenVuelta: código IATA del destino (ej: MIA, PUJ, MAD, etc.)
+- origenVuelta: lugar de destino, puede ser un ciudad o pais
 - departureDate: fecha estimada de salida en formato DDMMM (ej: 15AUG) o null si no se puede deducir
 - returnDate: fecha estimada de regreso en formato DDMMM o null
 - adults: cantidad de adultos (mayores de 12 años) o null
 - children: cantidad de niños (3 a 11 años) o null
 - infants: cantidad de bebés menores de 3 años o null
-
 ---
 
 
 ---
 **Reglas y detalles importantes:**
-2. El destino (`origenVuelta`) debe ser un código IATA válido extraído del mensaje.⚠ IMPORTANTE:
+2. El destino (`origenVuelta`) debe ser un lugar valido⚠ IMPORTANTE:
 3. Niños: entre 3 y 11 años inclusive. Bebés (infants): menores de 3 años.
 4. Interpretar expresiones de tiempo como:⚠ IMPORTANTE:
    - "primera semana de octubre" → 01OCT al 07OCT
@@ -90,10 +91,14 @@ Ejemplos:
 
 
 ---
+=======================
+3. Interpretacion codigo IATA
+=======================
+Tenes que interpretar el lugar donde quiere ir el cliente segun el mensaje, puede ser madrid, Cancun, o lo que sea tenes que ver el destino y rempazarlo en 'origenVuelta' del objeto final
 
 ejemplo de resultado, llenar con los datos obtenidos:
 {{
-  "origenVuelta": "IATA", 
+  "origenVuelta": "", 
   "departureDate": "DDMMM",
   "returnDate": "DDMMM",
   "adults": 0,
@@ -135,6 +140,67 @@ Mensaje del cliente:
     return resultado_json
 
 
+
+
+# DESTINOS_VALIDOS = {
+#     "punta cana": "PUJ",
+#     "madrid": "MAD",
+#     "montevideo": "MVD",
+#     "amsterdam": "AMS",
+#     "tokio": "NRT",
+#     "new york": "JFK",
+#     "londres": "LHR",
+#     "paris": "CDG",
+#     "barcelona": "BCN",
+#     "buenos aires": "BUE",
+#     "rosario": "ROS",
+#     "cancun": "CUN",  # <- ¡ACÁ ESTÁ EL PROBLEMA! Te faltaba esto.
+# }
+
+
+
+def obtener_codigo_iata(destino_obj, ruta_json="data/codigoIATA.json"):
+    if not isinstance(destino_obj, dict):
+        return destino_obj
+
+    destino_usuario = destino_obj.get("origenVuelta", "").lower().strip()
+    if not destino_usuario:
+        return destino_obj
+
+    try:
+        with open(ruta_json, "r", encoding="utf-8") as f:
+            destinos_data = json.load(f)
+    except Exception as e:
+        print(f"Error cargando {ruta_json}: {e}")
+        return destino_obj
+
+    # Armamos la lista de nombres de ciudades en minúsculas
+    ciudades = [d["ciudad"].lower().strip() for d in destinos_data]
+
+    mejor_coincidencia = process.extractOne(
+        destino_usuario,
+        ciudades,
+        scorer=fuzz.WRatio
+    )
+
+    if mejor_coincidencia:
+        ciudad_match, score, _ = mejor_coincidencia
+        if score >= 70:
+            # Buscamos el código IATA correspondiente
+            for d in destinos_data:
+                if d["ciudad"].lower().strip() == ciudad_match:
+                    destino_obj["origenVuelta"] = d["codigoIATA"]
+                    break
+        else:
+            print(f"No hubo coincidencia confiable para '{destino_usuario}' (score={score})")
+    else:
+        print(f"No se encontró ninguna coincidencia para '{destino_usuario}'")
+
+    return destino_obj
+
+
+
+
 def cargar_destinos():
     ruta_archivo = r'C:\Users\facun\FrancoMonolitico\vuelos-front\data\destinos.json'
     with open(ruta_archivo, 'r') as f:
@@ -146,7 +212,6 @@ def cargar_destinos():
 def completar_objetos_finales(vuelo):
     # Tabla de datos por ciudad
     tabla_destinos = cargar_destinos()
-   
     origen = vuelo.get("origenVuelta", "")
     datos_destino = tabla_destinos.get(origen, {...})
 
@@ -175,6 +240,10 @@ def completar_objetos_finales(vuelo):
     return vuelo_completo 
 
 
+
+
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Error: falta el mensaje como argumento.")
@@ -182,5 +251,6 @@ if __name__ == "__main__":
 
     mensaje = sys.argv[1]
     res = generar_json_desde_mensaje(mensaje)
-    res_final =completar_objetos_finales(res)
+    destino_final = obtener_codigo_iata(res)
+    res_final =completar_objetos_finales(destino_final)
     print(json.dumps(res_final, indent=2, ensure_ascii=False))

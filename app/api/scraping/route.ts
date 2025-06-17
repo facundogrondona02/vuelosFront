@@ -33,14 +33,16 @@ export async function POST(req: Request) {
   if (params.multibusqueda == false) {
     console.log("Entramos aca?")
     objetoViaje.push(await generarJsonDesdeMensaje(mensajeCliente))
+    console.log("este es el obj ",objetoViaje)
 
   } else {
     console.log("antes de multi",)
     const array = await generarArrayMultibusqueda(mensajeCliente);
-    console.log("array con respuestas ",array)
+    console.log("array con respuestas ", array)
     if (Array.isArray(array)) {
       console.log("entro aca??")
       objetoViaje.push(...array);
+      console.log("aca esta la posta ",array)
     } else {
       console.log("o entro aca??")
       objetoViaje.push(array);
@@ -57,17 +59,9 @@ export async function POST(req: Request) {
       respuestas.push(respuesta);
     }
   }
-  const limpiarIATA = (respuestas) => {
-  return respuestas.map(vuelo => ({
-    ...vuelo,
-    aeropuertoDestinoIda: vuelo.aeropuertoDestinoIda.slice(0,3),
-    aeropuertoDestinoVuelta: vuelo.aeropuertoDestinoVuelta.split('/n')[0].trim()
-  }));
-};
 
-const datosvuelosfinales =limpiarIATA(respuestas)
-console.log(respuestas, " respuestas pre")
-  const jsonData = JSON.stringify(datosvuelosfinales); 
+  console.log(respuestas, " respuestas pre")
+  const jsonData = JSON.stringify(respuestas);
   const response = await generarRespuesta(jsonData)
   console.log(response, " respuestas")
   return NextResponse.json({ result: response });

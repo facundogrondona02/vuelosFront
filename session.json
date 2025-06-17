@@ -2,7 +2,7 @@
   "cookies": [
     {
       "name": "ARRAffinity",
-      "value": "577483a680bdb7b9a3cb7e85aeb11a68f96077ec51e3aaf91048beafb0254a8f",
+      "value": "eebd7404154b1d74f38a06c6972c6532cfa5dd3ecff6e291a0a746723ca9eea6",
       "domain": ".aereos.sudameria.com",
       "path": "/",
       "expires": -1,
@@ -12,7 +12,7 @@
     },
     {
       "name": "ARRAffinitySameSite",
-      "value": "577483a680bdb7b9a3cb7e85aeb11a68f96077ec51e3aaf91048beafb0254a8f",
+      "value": "eebd7404154b1d74f38a06c6972c6532cfa5dd3ecff6e291a0a746723ca9eea6",
       "domain": ".aereos.sudameria.com",
       "path": "/",
       "expires": -1,
@@ -21,41 +21,41 @@
       "sameSite": "None"
     },
     {
-      "name": "_hjSessionUser_3632404",
-      "value": "eyJpZCI6ImJjZjZiYmRkLTE4OGYtNTFjYy05YTQ0LTRkNDdlYTFiYmU3YyIsImNyZWF0ZWQiOjE3NTAxMDE0MTUwMzIsImV4aXN0aW5nIjpmYWxzZX0=",
+      "name": "_ga",
+      "value": "GA1.1.942574623.1750175438",
       "domain": ".sudameria.com",
       "path": "/",
-      "expires": 1781637415,
+      "expires": 1784735437.552805,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "_hjSessionUser_3632404",
+      "value": "eyJpZCI6ImFiZTdiZmI5LWFjM2UtNTliMi05OTI0LTAxZDBjNWMxZDQ2MyIsImNyZWF0ZWQiOjE3NTAxNzU0Mzc1ODgsImV4aXN0aW5nIjpmYWxzZX0=",
+      "domain": ".sudameria.com",
+      "path": "/",
+      "expires": 1781711437,
       "httpOnly": false,
       "secure": true,
       "sameSite": "None"
     },
     {
       "name": "_hjSession_3632404",
-      "value": "eyJpZCI6ImVhNjA1YmI4LWI2ZWQtNGRjMS04YWQxLTZhZTYwNTA4OTUxMyIsImMiOjE3NTAxMDE0MTUwMzIsInMiOjAsInIiOjAsInNiIjowLCJzciI6MCwic2UiOjAsImZzIjoxLCJzcCI6MH0=",
+      "value": "eyJpZCI6ImJhYmEzNTZlLWFiMDItNDgyZC1hMTE0LWRhYjBhYzBlY2ZlMSIsImMiOjE3NTAxNzU0Mzc1ODgsInMiOjAsInIiOjAsInNiIjowLCJzciI6MCwic2UiOjAsImZzIjoxLCJzcCI6MH0=",
       "domain": ".sudameria.com",
       "path": "/",
-      "expires": 1750103215,
+      "expires": 1750177237,
       "httpOnly": false,
       "secure": true,
       "sameSite": "None"
     },
     {
-      "name": "_ga",
-      "value": "GA1.1.682247183.1750101415",
-      "domain": ".sudameria.com",
-      "path": "/",
-      "expires": 1784661415.039519,
-      "httpOnly": false,
-      "secure": false,
-      "sameSite": "Lax"
-    },
-    {
       "name": "_ga_VZXJTFSSD2",
-      "value": "GS2.1.s1750101415$o1$g0$t1750101419$j56$l0$h0",
+      "value": "GS2.1.s1750175437$o1$g0$t1750175441$j56$l0$h0",
       "domain": ".sudameria.com",
       "path": "/",
-      "expires": 1784661419.029088,
+      "expires": 1784735441.062795,
       "httpOnly": false,
       "secure": false,
       "sameSite": "Lax"
@@ -67,7 +67,7 @@
       "localStorage": [
         {
           "name": "user",
-          "value": "{\"AccessToken\":\"eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNyc2Etc2hhMjU2IiwidHlwIjoiSldUIn0.eyJzdWIiOiJmcmFuY29AbWVsaW5jdWUudHVyLmFyIiwianRpIjoiZWI5NWUwY2UtYjQ1NS00MThiLTg3MjEtZDhiN2MyODQ1MGUyIiwiaWF0IjoxNzUwMTAxNDI0LCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjpbImZyYW5jb0BtZWxpbmN1ZS50dXIuYXIiLCJmcmFuY29AbWVsaW5jdWUudHVyLmFyIl0sIkNsYWltcy5DaGFubmVsIjoiR1dDIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvZW1haWxhZGRyZXNzIjoiZnJhbmNvQG1lbGluY3VlLnR1ci5hciIsIkNsYWltcy5Vc2VySWQiOiJhNDQwZGI1ZC0xNzE5LTRhZmEtYjJhYi1jNjBhNGZkYzllZjAiLCJDbGFpbXMuU2Vzc2lvbklkIjoiNWMxODk4NjAtMWU0ZS00ZGQ0LTk0OWUtNzVkYTNkNDY2MzA2IiwiQ2xhaW1zLkNhblN3aXRjaENvbXBhbnkiOiJGYWxzZSIsIkNsYWltcy5Vc2VyRmlyc3ROYW1lIjoiRnJhbmNvIiwiQ2xhaW1zLlVzZXJMYXN0TmFtZSI6Ii4iLCJleHAiOjE3NTAxODc4MjQsImlzcyI6Ik5ldHZpYXguR1dDIiwiYXVkIjoiTmV0dmlheC5HV0MuQXVkaWVuY2UifQ.wgMlTP8m54JP0PBB3ds2w_7mPRcQDgnyw6YJ8_gw2RI47XBuLSzbH50gN2D_lH6Rh9MpAX0MGko5fIcrQq8zVhEPdWy8tiSbeLfXBd7O7grpUKx5HFk0Hl4k-sOAG46fQkqQ-aZfT99yMUHCyORVc9U1ZnGzjk6OIsPI2AdngXcih0geoLaGzZANWrUGh4XauU-vwH9TpUAZMmX4aUvbU42Trg-1B8S8CQ0GO1CdegNpanUQo9vlRAD7sl1mPLEqrh7uLGazrYSn7rxiwPlIZJtI0ED92yfuiarY-9GUSR9lLT1-asud-JoHH-8ONmwK992IavCv-0HhQJyM31tqIA\",\"ExpiresInSeconds\":28800,\"IsUserSuccessfullyLogedIn\":true,\"CanSwitchCompany\":false,\"CanOperateOnBehalfOf\":false,\"UserId\":\"a440db5d-1719-4afa-b2ab-c60a4fdc9ef0\",\"SessionId\":\"5c189860-1e4e-4dd4-949e-75da3d466306\",\"TimeStamp\":\"2025-06-16T16:17:04.206-03:00\",\"Name\":\"franco@melincue.tur.ar\",\"Email\":\"franco@melincue.tur.ar\"}"
+          "value": "{\"AccessToken\":\"eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNyc2Etc2hhMjU2IiwidHlwIjoiSldUIn0.eyJzdWIiOiJmcmFuY29AbWVsaW5jdWUudHVyLmFyIiwianRpIjoiZTZlODVkMDMtZDQ3Mi00NzBkLTg2NWEtZWNmMWFmY2UwZjI4IiwiaWF0IjoxNzUwMTc1NDQ3LCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjpbImZyYW5jb0BtZWxpbmN1ZS50dXIuYXIiLCJmcmFuY29AbWVsaW5jdWUudHVyLmFyIl0sIkNsYWltcy5DaGFubmVsIjoiR1dDIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvZW1haWxhZGRyZXNzIjoiZnJhbmNvQG1lbGluY3VlLnR1ci5hciIsIkNsYWltcy5Vc2VySWQiOiJhNDQwZGI1ZC0xNzE5LTRhZmEtYjJhYi1jNjBhNGZkYzllZjAiLCJDbGFpbXMuU2Vzc2lvbklkIjoiOTlhZmVjN2EtMzc1MC00YTczLTk3NTItZDMyMmIxNzU3MmY2IiwiQ2xhaW1zLkNhblN3aXRjaENvbXBhbnkiOiJGYWxzZSIsIkNsYWltcy5Vc2VyRmlyc3ROYW1lIjoiRnJhbmNvIiwiQ2xhaW1zLlVzZXJMYXN0TmFtZSI6Ii4iLCJleHAiOjE3NTAyNjE4NDcsImlzcyI6Ik5ldHZpYXguR1dDIiwiYXVkIjoiTmV0dmlheC5HV0MuQXVkaWVuY2UifQ.K9qDQhAyj8fjE5tYok2M29zgXsHhRWJkPsImUSKSFfZzye4O_pb4-H2PPXsu0bgdxwUAUquJ3W9zSogOiCONyIkLdXWCzI_4KJPxqINEpJhKUoJ2WGKB7fzQ4vZrnE_gPBI-1E3F4h1muzhioxMWF5VnOIzn9u78OkrJfkzofNp3m2wK9952MNsxSQkt1PjXZWpqTssqxeI6Cr9k6UzmH1v-BKJlxoSDwW7ErOwwIu1bZalsForEhJ9Ey4N2gNQe1sPK2YrqVszWqIG8YOh1cITafoN91jmUjdFiUeFocvU5ryZ1AEHw7chYy1pAGUlj4ALC2RuhcZqeEQEV1Ook4w\",\"ExpiresInSeconds\":28800,\"IsUserSuccessfullyLogedIn\":true,\"CanSwitchCompany\":false,\"CanOperateOnBehalfOf\":false,\"UserId\":\"a440db5d-1719-4afa-b2ab-c60a4fdc9ef0\",\"SessionId\":\"99afec7a-3750-4a73-9752-d322b17572f6\",\"TimeStamp\":\"2025-06-17T12:50:47.406-03:00\",\"Name\":\"franco@melincue.tur.ar\",\"Email\":\"franco@melincue.tur.ar\"}"
         },
         {
           "name": "Session.User.AuthenticationInformation.SelectedCompany",

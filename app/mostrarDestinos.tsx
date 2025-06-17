@@ -14,7 +14,11 @@ type Destino = {
   stops: string;
 };
 
-export function MostrarDestinos({ crearDestino }) {
+interface MostrarDestinosProps {
+  crearDestino: (destino: Destino) => void;
+}
+
+export function MostrarDestinos({ crearDestino }: MostrarDestinosProps) {
   const [destinos, setDestinos] = useState<Destino[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -66,18 +70,6 @@ export function MostrarDestinos({ crearDestino }) {
 
       <div className="mb-4 flex gap-4">
         <button
-          disabled={vista === "crear"}
-          onClick={verCrearDestino}
-          className={`font-semibold py-2 px-4 rounded text-white transition cursor-pointer
-    ${
-      vista === "crear"
-        ? "bg-gray-400 cursor-not-allowed"
-        : "bg-blue-600 hover:bg-blue-700 cursor-pointer"
-    }`}
-        >
-          Crear Destino
-        </button>
-        <button
           disabled={vista === "ver"}
           onClick={verDestino}
           className={`font-semibold py-2 px-4 rounded text-white transition cursor-pointer
@@ -88,6 +80,18 @@ export function MostrarDestinos({ crearDestino }) {
     }`}
         >
           Ver Destinos
+        </button>
+        <button
+          disabled={vista === "crear"}
+          onClick={verCrearDestino}
+          className={`font-semibold py-2 px-4 rounded text-white transition cursor-pointer
+    ${
+      vista === "crear"
+        ? "bg-gray-400 cursor-not-allowed"
+        : "bg-blue-600 hover:bg-blue-700 cursor-pointer"
+    }`}
+        >
+          Crear Destino
         </button>
       </div>
       {vista === "crear" ? (

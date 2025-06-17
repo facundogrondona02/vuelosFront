@@ -1,57 +1,35 @@
 [
   {
-    "ciudad": "Capital Federal",
-    "origenVuelta": "BUE",
-    "maxDuracionIda": "13:00",
-    "maxDuracionVuelta": "25:00",
-    "horarioIdaEntre": "14:30",
-    "horarioIdaHasta": "14:40",
-    "horarioVueltaEntre": "12:30",
+    "ciudad": "Londres",
+    "origenVuelta": "LHR",
+    "maxDuracionIda": "22:00",
+    "maxDuracionVuelta": "22:00",
+    "horarioIdaEntre": "06:00",
+    "horarioIdaHasta": "23:00",
+    "horarioVueltaEntre": "06:00",
     "horarioVueltaHasta": "23:00",
-    "stops": "1 escala"
+    "stops": "2 escalas"
   },
   {
     "ciudad": "Madrid",
     "origenVuelta": "MAD",
-    "maxDuracionIda": "20:00",
-    "maxDuracionVuelta": "22:00",
-    "horarioIdaEntre": "07:30",
-    "horarioIdaHasta": "23:40",
-    "horarioVueltaEntre": "06:30",
+    "maxDuracionIda": "22:00",
+    "maxDuracionVuelta": "25:00",
+    "horarioIdaEntre": "14:30",
+    "horarioIdaHasta": "23:00",
+    "horarioVueltaEntre": "12:30",
     "horarioVueltaHasta": "23:00",
     "stops": "2 escalas"
   },
   {
     "ciudad": "Cancun",
     "origenVuelta": "CUN",
-    "maxDuracionIda": "12:33",
-    "maxDuracionVuelta": "12:33",
-    "horarioIdaEntre": "12:33",
-    "horarioIdaHasta": "12:23",
-    "horarioVueltaEntre": "12:33",
-    "horarioVueltaHasta": "12:12",
-    "stops": "Directo"
-  },
-  {
-    "ciudad": "Punta cana",
-    "origenVuelta": "PUJ",
-    "maxDuracionIda": "12:22",
-    "maxDuracionVuelta": "12:22",
-    "horarioIdaEntre": "12:22",
-    "horarioIdaHasta": "12:22",
-    "horarioVueltaEntre": "12:22",
-    "horarioVueltaHasta": "23:00",
-    "stops": "Directo"
-  },
-  {
-    "ciudad": "Cancun",
-    "origenVuelta": "SDS",
     "maxDuracionIda": "25:00",
     "maxDuracionVuelta": "25:00",
-    "horarioIdaEntre": "12:12",
-    "horarioIdaHasta": "14:40",
+    "horarioIdaEntre": "12:00",
+    "horarioIdaHasta": "23:00",
     "horarioVueltaEntre": "12:30",
     "horarioVueltaHasta": "23:00",
-    "stops": "Directo"
+    "stops": "1 escala"
   }
 ]
