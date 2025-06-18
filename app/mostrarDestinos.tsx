@@ -26,11 +26,15 @@ export function MostrarDestinos({ crearDestino }: MostrarDestinosProps) {
 
   async function fetchData() {
     try {
-      const res = await fetch("/api/destinos", { method: "GET" });
+      const res = await fetch("/api/lugar", { method: "GET" });
+      console.log("resss 0", res)
       if (!res.ok) {
         throw new Error("Error al obtener los destinos");
       }
+      console.log("RESSS ", await res.clone().text())
       const data = await res.json();
+      console.log("Data parseada:", data);
+
       setDestinos(data);
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -97,7 +101,7 @@ export function MostrarDestinos({ crearDestino }: MostrarDestinosProps) {
       {vista === "crear" ? (
         <DestinoForm onSubmit={crearDestino} />
       ) : (
-        <Destinos destinos={destinos} />
+        <Destinos destinos={destinos} onSubmit={fetchData} />
       )}
     </div>
   );

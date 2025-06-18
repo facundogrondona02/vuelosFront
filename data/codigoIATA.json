@@ -1,14 +1,6 @@
 [
   {
-    "ciudad": "Londres",
-    "codigoIATA": "LHR"
-  },
-  {
-    "ciudad": "Madrid",
-    "codigoIATA": "MAD"
-  },
-  {
-    "ciudad": "Cancun",
-    "codigoIATA": "CUN"
+    "ciudad": "Miami",
+    "codigoIATA": "MIA"
   }
 ]

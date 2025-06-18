@@ -14,26 +14,84 @@ type Destino = {
 
 type DestinosProps = {
   destinos: Destino[];
+  onSubmit: () => Promise<void>;
 };
 
-export function Destinos({ destinos }: DestinosProps) {
+export function Destinos({ destinos, onSubmit }: DestinosProps) {
   const [modificar, setModificar] = useState(false);
   const [ciudad, setCiudad] = useState("");
-  const actualizar = (ciudad:string) => {
+  const [datosNuevos, setDatosNuevos] = useState<Destino | null>(null);
+
+  const actualizar = (ciudad: string) => {
     setModificar(true);
     setCiudad(ciudad);
+    const ciudadEncontrada = destinos.find((d) => d.ciudad === ciudad);
+
+    if (ciudadEncontrada) {
+      setDatosNuevos(ciudadEncontrada);
+      console.log(datosNuevos);
+    }
+  };
+
+  const onChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    campo: keyof Destino
+  ) => {
+    setDatosNuevos((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        [campo]: e.target.value,
+      };
+    });
+    // console.log(datosNuevos)
+  };
+
+  const modificacionFinal = async () => {
+    const res = await fetch("/api/lugar", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(datosNuevos),
+    });
+    console.log(res);
+    onSubmit();
+    setModificar(false);
+    setCiudad("");
+  };
+  const eliminarFinal = async () => {
+    const res = await fetch("/api/lugar", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(ciudad),
+    });
+    console.log(res);
+    onSubmit();
+    setModificar(false);
+    setCiudad("");
   };
   return (
     <div className="relative">
       {modificar && (
         <div className="absolute -top-10 right-4 flex space-x-4 z-10">
-          <button onClick={()=> setModificar} className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600 transition">
+          <button
+            onClick={() => {
+              setModificar(false);
+              setCiudad("");
+            }}
+            className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600 transition"
+          >
             Salir
           </button>
-          <button className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition">
+          <button
+            onClick={modificacionFinal}
+            className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition"
+          >
             Modificar
           </button>
-          <button className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition">
+          <button
+            onClick={eliminarFinal}
+            className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
+          >
             Eliminar
           </button>
         </div>
@@ -59,9 +117,13 @@ export function Destinos({ destinos }: DestinosProps) {
                 key={index}
                 className="border-t border-gray-200 hover:bg-gray-50 transition"
               >
-                <td className="py-2 px-4 cursor-pointer">
+                <td
+                  className={`cursor-pointer py-2 px-4  ${
+                    modificar && ciudad === destino.ciudad ? "bg-gray-400" : ""
+                  }`}
+                >
                   <button
-                    className="cursor-pointer"
+                    className={`cursor-pointer `}
                     onClick={() => actualizar(destino.ciudad)}
                   >
                     {destino.ciudad}
@@ -73,6 +135,7 @@ export function Destinos({ destinos }: DestinosProps) {
                     <td className="px-4">
                       <input
                         type="text"
+                        onChange={(e) => onChange(e, "origenVuelta")}
                         defaultValue={destino.origenVuelta}
                         className="border border-gray-500 m-auto text-left w-16 shadow-blue-400 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition duration-150"
                       />
@@ -80,6 +143,7 @@ export function Destinos({ destinos }: DestinosProps) {
                     <td className="px-4">
                       <input
                         type="text"
+                        onChange={(e) => onChange(e, "maxDuracionIda")}
                         defaultValue={destino.maxDuracionIda}
                         className="border border-gray-500 m-auto w-16 shadow-blue-400 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition duration-150"
                       />
@@ -87,6 +151,7 @@ export function Destinos({ destinos }: DestinosProps) {
                     <td className="px-4">
                       <input
                         type="text"
+                        onChange={(e) => onChange(e, "maxDuracionVuelta")}
                         defaultValue={destino.maxDuracionVuelta}
                         className="border border-gray-500 m-auto w-16 shadow-blue-400 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition duration-150"
                       />
@@ -94,6 +159,7 @@ export function Destinos({ destinos }: DestinosProps) {
                     <td className="px-4">
                       <input
                         type="text"
+                        onChange={(e) => onChange(e, "horarioIdaEntre")}
                         defaultValue={destino.horarioIdaEntre}
                         className="border border-gray-500 m-auto w-16 shadow-blue-400 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition duration-150"
                       />
@@ -101,6 +167,7 @@ export function Destinos({ destinos }: DestinosProps) {
                     <td className="px-4">
                       <input
                         type="text"
+                        onChange={(e) => onChange(e, "horarioIdaHasta")}
                         defaultValue={destino.horarioIdaHasta}
                         className="border border-gray-500 m-auto w-16 shadow-blue-400 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition duration-150"
                       />
@@ -108,6 +175,7 @@ export function Destinos({ destinos }: DestinosProps) {
                     <td className="px-4">
                       <input
                         type="text"
+                        onChange={(e) => onChange(e, "horarioVueltaEntre")}
                         defaultValue={destino.horarioVueltaEntre}
                         className="border border-gray-500 m-auto w-16 shadow-blue-400 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition duration-150"
                       />
@@ -115,6 +183,7 @@ export function Destinos({ destinos }: DestinosProps) {
                     <td className="px-4">
                       <input
                         type="text"
+                        onChange={(e) => onChange(e, "horarioVueltaHasta")}
                         defaultValue={destino.horarioVueltaHasta}
                         className="border border-gray-500 m-auto w-16 shadow-blue-400 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition duration-150"
                       />
@@ -122,6 +191,7 @@ export function Destinos({ destinos }: DestinosProps) {
                     <td className="px-4">
                       <input
                         type="text"
+                        onChange={(e) => onChange(e, "stops")}
                         defaultValue={destino.stops}
                         className="border border-gray-500 m-auto w-7/12 shadow-blue-400 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition duration-150"
                       />

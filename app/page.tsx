@@ -24,7 +24,7 @@ export default function Home() {
 
   async function guardarDestino(data: FormData) {
     console.log("DESDE EL HOME", data);
-    const res = await fetch("/api/destinos", {
+    const res = await fetch("/api/lugar", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
