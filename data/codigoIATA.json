@@ -2,5 +2,9 @@
   {
     "ciudad": "Miami",
     "codigoIATA": "MIA"
+  },
+  {
+    "ciudad": "Cancun",
+    "codigoIATA": "CUN"
   }
 ]

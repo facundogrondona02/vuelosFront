@@ -33,7 +33,7 @@ export async function POST(req: Request) {
   if (params.multibusqueda == false) {
     console.log("Entramos aca?")
     objetoViaje.push(await generarJsonDesdeMensaje(mensajeCliente))
-    console.log("este es el obj ",objetoViaje)
+    console.log("este es el obj ", objetoViaje)
 
   } else {
     console.log("antes de multi",)
@@ -42,7 +42,7 @@ export async function POST(req: Request) {
     if (Array.isArray(array)) {
       console.log("entro aca??")
       objetoViaje.push(...array);
-      console.log("aca esta la posta ",array)
+      console.log("aca esta la posta ", array)
     } else {
       console.log("o entro aca??")
       objetoViaje.push(array);
@@ -52,13 +52,18 @@ export async function POST(req: Request) {
   console.log("objeto viaj", objetoViaje)
   // 2. Pasar ese JSON al bot de scraping
   const respuestas: VueloFinal[] = [];
-  for (const vuelo of objetoViaje) {
-    const respuesta = await scrapingVuelos(vuelo);
-    console.log("Despues del scraping")
-    if (respuesta !== undefined) {
-      respuestas.push(respuesta);
-    }
-  }
+
+  const scrapingPromises = objetoViaje.map((vuelo) => scrapingVuelos(vuelo));
+  const scrapingResults = await Promise.all(scrapingPromises);
+
+  // Filtrás los undefined o errores si es necesario
+  const respuesta = scrapingResults.filter((r) => r !== undefined);
+
+  console.log(respuesta);
+  console.log("Después del scraping");
+
+  respuestas.push(...respuesta); // ✅ insertás los vuelos directamente (no como array dentro de array)
+
 
   console.log(respuestas, " respuestas pre")
   const jsonData = JSON.stringify(respuestas);

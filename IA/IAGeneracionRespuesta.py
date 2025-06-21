@@ -3,21 +3,29 @@ import io
 import json
 import ollama
 
-# Forzar salida estándar en UTF-8
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 def generar_respuesta(mensaje):
-    prompt = f"""
-Vas a recibir un array de uno o más vuelos de ida y vuelta, en formato JSON. Cada objeto representa un vuelo completo con información como horarios, aeropuertos, escalas, duración, aerolínea y precio.
+    try:
+        vuelos = json.loads(mensaje)
+    except json.JSONDecodeError as e:
+        print("Error: el mensaje no es un JSON válido.")
+        print("Detalles:", e)
+        return
 
-🎯 Tu tarea es generar un mensaje cálido, profesional y listo para enviar por WhatsApp o chat, con los siguientes criterios:
+    cantidad = len(vuelos)
+    vuelos_texto = json.dumps(vuelos, ensure_ascii=False, indent=2)
+
+    prompt = f"""
+Recibiste una cotización con {cantidad} vuelo(s) en formato JSON. Tu tarea es generar un mensaje cálido y profesional para enviar por WhatsApp a un cliente interesado en viajar.
+
+✈️ Datos de los vuelos:
+{vuelos_texto}
 
 ---
 
-🛫 **SI HAY SOLO UN VUELO:**
-
-Mostralo exactamente con este formato (reemplazando los valores entre llaves con los datos del JSON):
-
+🎯 Instrucciones:
+- Si hay **1 solo vuelo**, mostralo con este formato (reemplazando los valores entre llaves):
 ---
 Cotización aérea a {{ciudadDestinoIda}}.
 
@@ -36,27 +44,13 @@ Llegada: {{aeropuertoDestinoVuelta}} {{horarioSupongoLlegadaVuelta}} (Duración:
 💰 Precio final: {{precioFinal}} USD
 ---
 
-📌 Asegurate de reemplazar todas las {{llaves}} por los valores reales del vuelo.
+- Si hay **2 o más vuelos**, mostralos con ese mismo formato uno por uno, y al final hacé una breve comparación (precio, escalas u horarios).
+- No inventes vuelos. Usá **solo** los datos recibidos.
+- No repitas el destino si es el mismo en todos.
+- No devuelvas el JSON. Solo el mensaje final para el cliente.
+- Usá emojis si querés, con tono humano, claro y cálido.
 
----
-
-🧠 **SI HAY VARIOS VUELOS:**
-
-1. Mostralos uno por uno usando el formato anterior.
-2. Al final, redactá una comparación clara y profesional entre las opciones.
-3. Recomendá una opción, justificando por qué (por ejemplo: menor precio, menos escalas, menor duración o mejor horario).
-4. No repitas el nombre del destino en cada uno si es el mismo.
-5. No devuelvas el JSON ni menciones estructuras técnicas.
-
----
-
-💡 Tono: cálido, humano, claro. Podés usar emojis para darle cercanía. No hagas preguntas de cierre (como “¿Querés avanzar?”). Simplemente entregá la información con claridad y calidez.
-
-📩 Al final, entregá solo el mensaje para el cliente, con los datos ya reemplazados.
-
-Aquí está el mensaje del cliente para que trabajes:
-
-\"\"\"{mensaje}\"\"\"
+📌 Devolvé solo el texto para el cliente, sin código ni estructuras técnicas.
 """
 
     response = ollama.chat(
@@ -67,10 +61,11 @@ Aquí está el mensaje del cliente para que trabajes:
 
     print(response["message"]["content"])
 
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Error: falta el mensaje como argumento.")
-        sys.exit(1)
 
-    mensaje = sys.argv[1]
-    generar_respuesta(mensaje)
+if __name__ == "__main__":
+    try:
+        mensaje = sys.stdin.read()
+        generar_respuesta(mensaje)
+    except Exception as e:
+        print("Error al leer stdin o generar respuesta:", e)
+        sys.exit(1)

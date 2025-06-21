@@ -1,57 +1,90 @@
+import json
+import re
+from fuzzywuzzy import process, fuzz
+
 import sys
 import json
 import ollama
-import json
 import re
 from rapidfuzz import process, fuzz
 
+MESES = {
+    "enero": "JAN", "febrero": "FEB", "marzo": "MAR", "abril": "APR",
+    "mayo": "MAY", "junio": "JUN", "julio": "JUL", "agosto": "AUG",
+    "septiembre": "SEP", "octubre": "OCT", "noviembre": "NOV", "diciembre": "DEC"
+}
+
+def es_fecha_rango_concreto(frase):
+    # Detecta frases tipo "del 10 al 20 de agosto"
+    return bool(re.search(r"del?\s+\d{1,2}\s+(al|hasta)\s+\d{1,2}\s+de\s+\w+", frase.lower()))
+
+def extraer_fechas_desde_frase(frase):
+    """
+    Detecta rangos del tipo 'del 10 al 20 de agosto' o fechas únicas 'el 3 de agosto' 
+    en la frase y devuelve departureDate y returnDate en formato DDMMM.
+    """
+    frase = frase.lower()
+
+    # 1) Rango explícito: "del 10 al 20 de agosto"
+    rango_pattern = r"del (\d{1,2}) al (\d{1,2}) de (\w+)"
+    match = re.search(rango_pattern, frase)
+    if match:
+        dia_ini, dia_fin, mes = match.groups()
+        mes = mes.lower()
+        if mes in MESES:
+            departureDate = f"{int(dia_ini):02d}{MESES[mes]}"
+            returnDate = f"{int(dia_fin):02d}{MESES[mes]}"
+            return departureDate, returnDate, "rango"
+
+    # 2) Fecha única: "el 3 de agosto"
+    fecha_unica_pattern = r"el (\d{1,2}) de (\w+)"
+    match = re.search(fecha_unica_pattern, frase)
+    if match:
+        dia, mes = match.groups()
+        mes = mes.lower()
+        if mes in MESES:
+            departureDate = f"{int(dia):02d}{MESES[mes]}"
+            dia_ret = int(dia) + 7  # Asumimos viaje de 7 días
+            returnDate = f"{dia_ret:02d}{MESES[mes]}"
+            return departureDate, returnDate, "fechaExacta"
+
+    return None, None, None
+
+def match_fecha_concreta(frase_fecha_ambigua, ejemplos_fechas, umbral=85):
+    frases = [ej["frase"] for ej in ejemplos_fechas]
+    match_score = process.extractOne(frase_fecha_ambigua, frases, scorer=fuzz.WRatio)
+    if match_score:
+       match, score, idx = match_score
+    if score >= umbral:
+        return ejemplos_fechas[idx]
+    return None
+
 def generar_json_desde_mensaje(mensaje):
-    with open('IA/ejemplos.json', 'r', encoding='utf-8') as f:
-        template_json = json.load(f)
-    with open('data/codigoIATA.json', 'r', encoding='utf-8')as cod:
-        codigos = json.load(cod) 
-# Convertir el dict a string JSON con indentación para legibilidad
-    template_str = json.dumps(template_json, indent=2, ensure_ascii=False)
-    codigos_IATA = json.dumps(codigos, indent=2, ensure_ascii=False)
+    ejemplos_fechas = json.load(open("IA/ejemplos.json", encoding="utf-8"))
+    lista_ejemplos = ejemplos_fechas["ejemplos"]
+
     prompt = f"""
 Sos una IA que recibe mensajes de clientes y devuelve un objeto  con los datos del vuelo.
 
 Tu tarea es:
 - Interpretar pasajeros
-- Detectar fechas
+- Detectar fechas anbiguas y pasarlas a concretas
 - Detectar el destino y devolver el lugar donde entendes que va a ir
 
 Respondé SOLO con el objeto JSON puro (sin texto adicional, sin explicaciones).
 
-
 - origenVuelta: lugar de destino, puede ser un ciudad o pais
-- departureDate: fecha estimada de salida en formato DDMMM (ej: 15AUG) o null si no se puede deducir
-- returnDate: fecha estimada de regreso en formato DDMMM o null
-- adults: cantidad de adultos (mayores de 12 años) o null
-- children: cantidad de niños (3 a 11 años) o null
-- infants: cantidad de bebés menores de 3 años o null
----
+- fraseFecha: pasar de la fecha ambigua a una concreta
+- adults: cantidad de adultos (mayores de 12 años) 
+- children: cantidad de niños (3 a 11 años) 
+- infants: cantidad de bebés menores de 3 años 
 
-
----
+--- 
 **Reglas y detalles importantes:**
 2. El destino (`origenVuelta`) debe ser un lugar valido⚠ IMPORTANTE:
 3. Niños: entre 3 y 11 años inclusive. Bebés (infants): menores de 3 años.
-4. Interpretar expresiones de tiempo como:⚠ IMPORTANTE:
-   - "primera semana de octubre" → 01OCT al 07OCT
-   - "segunda semana de julio" → 08JUL al 14JUL
-   - "la primera de septiembre" → igual a primera semana
-   - "la segunda de noviembre" → igual a segunda semana
-   - "primera quincena de enero" → 01JAN al 15JAN
-   - "segunda quincena de febrero" → 16FEB al 29FEB
-   - "a fin de mes" → salida: 25, regreso: 30 del mismo mes
-   - "mitad de septiembre" → salida: 10SEP, regreso: 20SEP
-   La salida de los datos "departureDate": "",
-  "returnDate": "", tiene que ser DIAMES por ejemplo 1 de octubre 01OCT, 2 de marzo 02MAR, 23 de agosto 23AUG
-5. Si hay rangos de fechas, usar el primer día del rango como `departureDate` y el último como `returnDate`.
-7. Fechas en formato DDMMM (día con dos dígitos y mes en tres letras mayúsculas en inglés).
 
----
+--- 
 =======================
 1. Interpretación de pasajeros
 =======================
@@ -78,47 +111,83 @@ Respondé SOLO con el objeto JSON puro (sin texto adicional, sin explicaciones).
 2. Interpretación de fechas
 =======================
 
-Convertí expresiones de tiempo como las siguientes en fechas específicas con formato `DDMMM` (por ejemplo, 01NOV, 07NOV). Usá siempre el rango más probable y asumí que el usuario habla del año actual.
-en departureDate: DDMMM de la ida y en returnDate: DDMMM de la vuelta
+Tu tarea es interpretar mensajes con fechas de viaje y devolver un JSON con los datos.
+
+Devuelve un único objeto JSON, con estos campos:
+- origenVuelta: destino interpretado
+- fraseFecha: frase clara que resume la fecha o rango de fechas de salida y regreso, por ejemplo "segunda quincena de agosto" o "del 15 al 20 de agosto"
+- tipoFecha: uno de ["semana", "quincena", "rango", "fechaExacta"]
+- adults, children, infants: números de pasajeros.
+
 Ejemplos:
-- "la primera semana de noviembre" → departureDate: '01NOV', returnDate: '07NOV'
-- "los primeros días de enero" → departureDate: '01JAN', returnDate: '05JAN'
-- "últimos días de febrero" → departureDate: '25FEB', returnDate: '29FEB'
-- "a mitad de mes" → departureDate: '14MAR', returnDate: '20MAR'
-- "principios de octubre" → departureDate: '01OCT', returnDate: '07OCT'
-- "la segunda quincena de diciembre" → departureDate: '16DEC', returnDate: '31DEC'
-- "me quiero ir el finde largo del 25 de mayo" → departureDate: '24MAY', returnDate: '27MAY'
 
+Mensaje: "Quiero viajar la segunda quincena de agosto"
+Respuesta JSON:
+{{
+  "origenVuelta": "MAD",
+  "fraseFecha": "segunda quincena de agosto",
+  "adults": 1,
+  "children": 0,
+  "infants": 0
+}}
 
+Mensaje: "Viajo del 15 al 20 de agosto"
+Respuesta JSON:
+{{
+  "origenVuelta": "MAD",
+  "fraseFecha": "del 15 al 20 de agosto",
+  "adults": 1,
+  "children": 0,
+  "infants": 0
+}}
 ---
 =======================
 3. Interpretacion codigo IATA
 =======================
+
 Tenes que interpretar el lugar donde quiere ir el cliente segun el mensaje, puede ser madrid, Cancun, o lo que sea tenes que ver el destino y rempazarlo en 'origenVuelta' del objeto final
 
+
+=======================
+🔁 Revisión final de fechas ANTES de generar el objeto JSON
+=======================⚠️ No modifiques el JSON anterior ni generes uno nuevo. Solo revisá internamente que `departureDate` y `returnDate` cumplan estas reglas antes de mostrar el resultado.
+✅ Interpretación de “quincenas”:
+
+✅ Si ya lo hiciste bien, respondé con ese mismo objeto.  
+❌ Si hay algún error en esas fechas, corregilo internamente antes de mostrar el resultado final.
+
+⚠️ Respondé solamente con UN único objeto JSON. No expliques nada, no devuelvas más de un JSON.
 ejemplo de resultado, llenar con los datos obtenidos:
 {{
   "origenVuelta": "", 
-  "departureDate": "DDMMM",
-  "returnDate": "DDMMM",
+  "fraseFecha": "",
   "adults": 0,
   "children": 0,
   "infants": 0,
 }}
 no te confundas los nombres de los atributos, tene mucho cuidado
+Cuando termines de armar el objeto revisa nuevamente las fechas hasta que estes seguro de la respuesta
+Tenes que revisar las fechas y segui los ejemplos que estan en la seecion 
+todos los campos del objeto que tenes que retonar tienen que tener un valor si o si, si no encontraste un valor para alguno tenes que volver a buscar hasta que esten todos completados correctamente
+No tenes que inventar fechas, segui el paso a paso de las instrucciones.
+Cada campo a completar tiene un instructivo preciso de lo que se pide, seguilo al 100% siempre
+Siempre devolve un solo json, nunca retornes 2, SIEMPRE RETORNA 1 SOLO JSON
+ultima quincena o última quincena es lo mismo que segunda quincena, usa la misma informacion que te da segunda informacion
+
+⚠️ Respondé solamente con UN único objeto JSON. No expliques nada, no devuelvas más de un JSON.
+
+-------------------
 
 ---
 Mensaje del cliente:
 \"\"\"{mensaje}\"\"\"
 
-"""
+    """
 
     response = ollama.chat(
         model="llama3.2",
         messages=[{"role": "user", "content": prompt}],
-            options={
-        "temperature": 0
-    }
+        options={"temperature": 0}
     )
     respuesta_texto = response["message"]["content"].strip()
 
@@ -136,26 +205,33 @@ Mensaje del cliente:
         print(respuesta_texto)
         raise ValueError("No se pudo extraer un JSON válido de la respuesta de la IA.")
 
-    # **Acá retornás el JSON para usarlo afuera**
+    frase = resultado_json.get("fraseFecha", "")
+
+    # 1) Si es fecha concreta → extraerla directamente
+    if es_fecha_rango_concreto(frase):
+        dep, ret, tipo = extraer_fechas_desde_frase(frase)
+        if dep and ret:
+            resultado_json["departureDate"] = dep
+            resultado_json["returnDate"] = ret
+            resultado_json["tipoFecha"] = tipo
+        else:
+            resultado_json["departureDate"] = ""
+            resultado_json["returnDate"] = ""
+            resultado_json["tipoFecha"] = ""
+    else:
+        # 2) Buscar en ejemplos de semanas/quincenas
+        match_fecha = match_fecha_concreta(frase, lista_ejemplos)
+        if match_fecha:
+            resultado_json["departureDate"] = match_fecha["departureDate"]
+            resultado_json["returnDate"] = match_fecha["returnDate"]
+            resultado_json["tipoFecha"] = match_fecha.get("tipoFecha", "semana/quincena")
+        else:
+            resultado_json["departureDate"] = ""
+            resultado_json["returnDate"] = ""
+            resultado_json["tipoFecha"] = ""
+
     return resultado_json
 
-
-
-
-# DESTINOS_VALIDOS = {
-#     "punta cana": "PUJ",
-#     "madrid": "MAD",
-#     "montevideo": "MVD",
-#     "amsterdam": "AMS",
-#     "tokio": "NRT",
-#     "new york": "JFK",
-#     "londres": "LHR",
-#     "paris": "CDG",
-#     "barcelona": "BCN",
-#     "buenos aires": "BUE",
-#     "rosario": "ROS",
-#     "cancun": "CUN",  # <- ¡ACÁ ESTÁ EL PROBLEMA! Te faltaba esto.
-# }
 
 
 
