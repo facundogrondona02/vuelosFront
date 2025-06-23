@@ -24,6 +24,8 @@ interface ScrapingVuelosParams {
   horarioVueltaHasta: string,
   maxDuracionIda: string,
   maxDuracionVuelta: string,
+  carryon: boolean,
+  bodega: boolean
   // otros params que necesites
 }
 
@@ -46,6 +48,10 @@ type VueloFinal = {
   aeropuertoDestinoVuelta: string;
   ciudadDestinoVuelta: string;
   aerolinea: string;
+  adults: number;
+  children: number;
+  infants: number;
+
 };
 
 
@@ -69,6 +75,8 @@ export async function scrapingVuelos(params: ScrapingVuelosParams): Promise<Vuel
     horarioVueltaHasta,
     maxDuracionIda,
     maxDuracionVuelta,
+    carryon,
+    bodega
   } = params;
 
   // 1. Obtener contexto con sesión válida
@@ -183,9 +191,46 @@ export async function scrapingVuelos(params: ScrapingVuelosParams): Promise<Vuel
     console.log("⌛ Ajustando duración máxima de vuelo vuelta a:", maxDuracionVuelta);
     await ajustarSliderVueloVuelta({ page, horaDeseada: maxDuracionVuelta });
 
+    // === EQUIPAJE CARRYON ===
+    if (carryon) {
+      console.log("ESTaMOS EN CARRYON?")
+      // await page.locator('div.rz-chkbox-box').nth(15).click();
+      // await page.locator('div.rz-chkbox-box').nth(17).click();
+      const filas = await page.locator('div.rz-display-flex').all();
+
+      for (const fila of filas) {
+        const label = fila.locator('label');
+
+        const textoLabel = await label.textContent();
+        if (textoLabel?.trim() === 'Con CarryOn') {
+          // Ir al hermano: <div class="rz-chkbox-box"> dentro de <div class="rz-chkbox">
+          const box = fila.locator('.rz-chkbox-box');
+          await box.click();
+        }
+      }
+    }
+
+    // === EQUIPAJE DE BODEGA ===
+    if (bodega) {
+      const filas = await page.locator('div.rz-display-flex').all();
+
+      for (const fila of filas) {
+        const label = fila.locator('label');
+
+        const textoLabel = await label.textContent();
+        if (textoLabel?.trim() === 'Con equipaje en bodega') {
+          // Ir al hermano: <div class="rz-chkbox-box"> dentro de <div class="rz-chkbox">
+          const box = fila.locator('.rz-chkbox-box');
+          await box.click();
+        }
+      }
+    }
+
+
     // === APLICAR FILTROS ===
     await page.locator('//*[@id="app"]/div[3]/div[1]/div[2]/div[2]/button[3]').click();
     console.log("✔ Filtros aplicados");
+
 
     // === ESPERAR RESULTADOS ===
     await page.waitForLoadState('networkidle');
@@ -202,18 +247,24 @@ export async function scrapingVuelos(params: ScrapingVuelosParams): Promise<Vuel
     // === RECORRER LISTA DE VUELOS ===
     await page.waitForTimeout(3000);
 
-    const res = await recorroListaVuelos(page);
+  const res = await recorroListaVuelos(page);
 
+  if (typeof res === "string") {
     if (res === "No hay ningun vuelo disponible con estas opciones") {
       console.warn("⚠ No hay ningún vuelo disponible con estas opciones.");
       return undefined;
     }
+  } else {
+    res.adults = adults;
+    res.children = children;
+    res.infants = infants;
+  }
 
-    console.log("✅ Búsqueda finalizada correctamente");
+    console.log("✅ Búsqueda finalizada correctamente", res);
     // res.aeropuertoDestinoIda.split('\n')[0].trim()
     // res.aeropuertoDestinoVuelta.split('\n')[0].trim()
     return res;
-     
+
   } catch (error) {
     console.error("❌ Error durante la búsqueda:", error);
   } finally {

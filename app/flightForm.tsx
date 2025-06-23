@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import {  Mensaje } from "./types/types";
+import { Mensaje } from "./types/types";
 // const defaultFormData: FlightFormData = {
 //   mail: "",
 //   password: "",
@@ -22,10 +22,12 @@ import {  Mensaje } from "./types/types";
 //   maxDuracionVuelta: "25:00",
 // };
 
-const defaultMensaje : Mensaje  = {
-  mensaje:"",
-  multibusqueda:false
-}
+const defaultMensaje: Mensaje = {
+  mensaje: "",
+  multibusqueda: false,
+  carryon: true,
+  bodega: false,
+};
 interface Props {
   onSubmit: (data: Mensaje) => void;
 }
@@ -34,9 +36,14 @@ export function FlightForm({ onSubmit }: Props) {
   const [formData, setFormData] = useState<Mensaje>(defaultMensaje);
 
   function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
   ) {
-    const target = e.target as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+    const target = e.target as
+      | HTMLInputElement
+      | HTMLSelectElement
+      | HTMLTextAreaElement;
     const { name, value, type } = target;
     setFormData((prev: Mensaje) => ({
       ...prev,
@@ -53,7 +60,6 @@ export function FlightForm({ onSubmit }: Props) {
     e.preventDefault();
     console.log(formData);
     onSubmit(formData);
-
   }
 
   return (
@@ -78,16 +84,39 @@ export function FlightForm({ onSubmit }: Props) {
         />
       </label>
 
-            <label className="block">
-        <span className="text-gray-700 font-medium">Multi Busqueda:</span>
-        <input
-          name="multibusqueda"
-          type="checkbox"
-          onChange={handleChange}
-          className=""
-          placeholder="Mensaje cliente"
-        />
-      </label>
+      <div className="flex gap-x-9">
+        <label className="block">
+          <span className="text-gray-700 font-medium">Multi Busqueda:</span>
+          <input
+            name="multibusqueda"
+            type="checkbox"
+            onChange={handleChange}
+            className=""
+            placeholder="Mensaje cliente"
+          />
+        </label>
+        <label className="block">
+          <span className="text-gray-700 font-medium">Carry on:</span>
+          <input
+            name="carryon"
+            type="checkbox"
+            onChange={handleChange}
+            checked={formData.carryon} // ✅ esto refleja el estado actual
+            className=""
+            placeholder="Mensaje cliente"
+          />
+        </label>
+        <label className="block">
+          <span className="text-gray-700 font-medium">Equipaje de bodega:</span>
+          <input
+            name="bodega"
+            type="checkbox"
+            onChange={handleChange}
+            className=""
+            placeholder="Mensaje cliente"
+          />
+        </label>
+      </div>
       <button
         type="submit"
         className="w-full bg-indigo-600 text-white font-semibold py-3 rounded-md

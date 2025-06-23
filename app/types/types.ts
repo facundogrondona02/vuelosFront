@@ -26,7 +26,9 @@ export interface FlightFormData {
 
 export interface Mensaje{
     mensaje:string,
-    multibusqueda:boolean
+    multibusqueda:boolean,
+    carryon:boolean,
+    bodega:boolean
 }
 
 export interface FormData {

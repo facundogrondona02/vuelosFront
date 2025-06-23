@@ -31,7 +31,6 @@ export async function POST(req: Request) {
   console.log(mensajeCliente, " mensaje cliente")
   const objetoViaje = [];
   if (params.multibusqueda == false) {
-    console.log("Entramos aca?")
     objetoViaje.push(await generarJsonDesdeMensaje(mensajeCliente))
     console.log("este es el obj ", objetoViaje)
 
@@ -52,12 +51,17 @@ export async function POST(req: Request) {
   console.log("objeto viaj", objetoViaje)
   // 2. Pasar ese JSON al bot de scraping
   const respuestas: VueloFinal[] = [];
-
-  const scrapingPromises = objetoViaje.map((vuelo) => scrapingVuelos(vuelo));
+  
+  const scrapingPromises =  objetoViaje.map(async (vuelo) =>
+    { 
+      vuelo = { ...vuelo, carryon: params.carryon, bodega: params.bodega }
+      console.log("ANtesde entrar al scrapíng !!!!!", vuelo)
+      return await scrapingVuelos(vuelo)
+    });
   const scrapingResults = await Promise.all(scrapingPromises);
 
   // Filtrás los undefined o errores si es necesario
-  const respuesta = scrapingResults.filter((r) => r !== undefined);
+  const respuesta = await scrapingResults.filter((r) => r !== undefined);
 
   console.log(respuesta);
   console.log("Después del scraping");

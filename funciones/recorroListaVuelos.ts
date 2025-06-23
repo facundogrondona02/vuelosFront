@@ -50,8 +50,14 @@ export default async function recorroListaVuelos(page: Page) {
         horarioSupongoLlegadaVuelta: "",
         aeropuertoDestinoVuelta: "",
         ciudadDestinoVuelta: "",
-        aerolinea: ""
-
+        aerolinea: "",
+        fechaSalidaIda: "",
+        fechaLlegadaIda: "",
+        fechaSalidaVuelta: "",
+        fechaLlegadaVuelta: "",
+        adults: 0,
+        children: 0,
+        infants: 0
     }
 
     for (let i = 0; i < cantidadFilas; i++) {
@@ -64,9 +70,6 @@ export default async function recorroListaVuelos(page: Page) {
             const equipajeCarrion = contenedor.locator('.baggage.carry-on').first();
             const equipajeBodega = contenedor.locator('.baggage.dispatch').first();
 
-            // const tieneMano = (await equipajeMano.locator('.included').count() > 0) ? true : false;
-            // const tieneCarrion = (await equipajeCarrion.locator('.included').count() > 0) ? true : false;
-            // const tieneBodega = (await equipajeBodega.locator('.included').count() > 0 )? true : false;
             const tieneMano = (await equipajeMano.getAttribute('class'))?.includes('included') ?? false;
             const tieneCarrion = (await equipajeCarrion.getAttribute('class'))?.includes('included') ?? false;
             const tieneBodega = (await equipajeBodega.getAttribute('class'))?.includes('included') ?? false;
@@ -84,7 +87,7 @@ export default async function recorroListaVuelos(page: Page) {
                 vueloFinal.horarioSupongoDuracionIda = (await fila.locator('//*[@id="showDetail"]/div[1]/div[2]/div[2]/span[1]').textContent()) ?? "";
                 vueloFinal.escalasIda = (await fila.locator('//*[@id="showDetail"]/div[1]/div[2]/div[2]/span[2]').textContent()) ?? "";
                 vueloFinal.horarioSupongoLlegadaIda = (await fila.locator('//*[@id="showDetail"]/div[1]/div[2]/div[3]/div[1]/span[1]/strong').textContent()) ?? "";
-              
+
                 const nodoCityLocator = fila.locator('//*[@id="showDetail"]/div[1]/div[2]/div[3]/div[1]/span[2]');
                 const handle = await nodoCityLocator.elementHandle();
                 const mad = await handle?.evaluate(el => el.childNodes[0]?.nodeValue?.trim() ?? "");
@@ -108,11 +111,55 @@ export default async function recorroListaVuelos(page: Page) {
                 vueloFinal.ciudadDestinoVuelta = (await fila.locator('//*[@id="showDetail"]/div[3]/div[2]/div[3]/div[2]/span').textContent()) ?? "";
 
                 vueloFinal.aerolinea = (await fila.locator('//*[@id="showDetail"]/div[3]/div[1]/img').getAttribute('title')) ?? "";
+                await fila.locator('text=Ver Detalle').click();
+
+                // // Esperar que aparezca la info expandida
+                await page.waitForTimeout(4000)
+
+                // // Extraer fechas
+                // vueloFinal.fechaSalidaIda = await fila.locator('xpath=//*[@id="flight-detail-information"]/div/div[2]/div[1]/div[2]/div[1]/p[1]/strong').first().textContent() ?? "";
+                // vueloFinal.fechaLlegadaIda = await fila.locator('//*[@id="flight-detail-information"]/div/div[2]/div/div[2]/div[3]/p[1]/strong').first().textContent() ?? "";
+
+                // const contenedor = fila.locator('div.row-leg-box');
+
+                // // dentro de ese contenedor, agarrás el primer strong que esté dentro de un `p.leg-departure-date`
+                // const strongFecha = contenedor.locator('p.leg-departure-date >> strong').first();
+
+                // const textoFecha = await strongFecha.textContent();
+                // vueloFinal.fechaSalidaVuelta = textoFecha ?? ""
+
+                // vueloFinal.fechaLlegadaVuelta = await fila.locator('//*[@id="flight-detail-information"]/div/div[3]/div/div[2]/div[3]/p[1]/strong').first().textContent() ?? "";
+                const bloquesVuelo = await fila.locator('#flight-detail-information').all();
+
+                // Verificamos que haya al menos dos bloques (ida y vuelta)
+                if (bloquesVuelo.length >= 2) {
+                    // 👉 Primer bloque: IDA
+                    const ida = bloquesVuelo[0];
+                    const fechasIda = ida.locator('p.leg-departure-date >> strong');
+                    const fechaSalidaIda = await fechasIda.first().textContent() ?? "";
+                    const fechaLlegadaIda = await fechasIda.last().textContent() ?? "";
+
+                    // 👉 Segundo bloque: VUELTA
+                    const vuelta = bloquesVuelo[1];
+                    const fechasVuelta = vuelta.locator('p.leg-departure-date >> strong');
+                    const fechaSalidaVuelta = await fechasVuelta.first().textContent() ?? "";
+                    const fechaLlegadaVuelta = await fechasVuelta.last().textContent() ?? "";
+
+                    console.log({ fechaSalidaIda, fechaLlegadaIda, fechaSalidaVuelta, fechaLlegadaVuelta });
+
+                    // Si querés asignarlo:
+                    vueloFinal.fechaSalidaIda = fechaSalidaIda;
+                    vueloFinal.fechaLlegadaIda = fechaLlegadaIda;
+                    vueloFinal.fechaSalidaVuelta = fechaSalidaVuelta;
+                    vueloFinal.fechaLlegadaVuelta = fechaLlegadaVuelta;
+                }
+
+
+
 
 
 
                 console.log("horario salida ida ", vueloFinal)
-
 
 
                 break;
