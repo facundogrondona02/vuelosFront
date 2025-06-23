@@ -140,5 +140,4 @@
   { "frase": "puedo salir el 10 de diciembre y regresar el 17 de diciembre", "departureDate": "10DEC", "returnDate": "17DEC" },
   { "frase": "me puedo ir el 13 o 14 de diciembre y volver entre el 20 y el 22 de diciembre", "departureDate": ["13DEC", "14DEC"], "returnDate": ["20DEC", "21DEC", "22DEC"] },
   { "frase": "puedo salir cualquier día entre el 17 y el 19 de diciembre y volver el 25 de diciembre", "departureDate": ["17DEC", "18DEC", "19DEC"], "returnDate": "25DEC" }
-
 ]

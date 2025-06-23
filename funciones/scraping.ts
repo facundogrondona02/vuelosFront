@@ -210,8 +210,8 @@ export async function scrapingVuelos(params: ScrapingVuelosParams): Promise<Vuel
     }
 
     console.log("✅ Búsqueda finalizada correctamente");
-    res.aeropuertoDestinoIda.split('\n')[0].trim()
-    res.aeropuertoDestinoVuelta.split('\n')[0].trim()
+    // res.aeropuertoDestinoIda.split('\n')[0].trim()
+    // res.aeropuertoDestinoVuelta.split('\n')[0].trim()
     return res;
      
   } catch (error) {

@@ -16,8 +16,9 @@ export async function generarRespuesta(mensaje) {
     process.on("close", (code) => {
       if (code === 0) {
         try {
-          const json = JSON.parse(result); // Intentás parsear si esperás un JSON
-          resolve(json);
+          // const json = JSON.parse(result); // Intentás parsear si esperás un JSON
+          // resolve(json);
+          resolve(result.trim()); // ✅ Ya que es texto plano (mensaje para WhatsApp)
         } catch (e) {
           console.warn("No se pudo parsear JSON, se devuelve texto plano.", e);
           resolve(result.trim()); // En caso de que no sea JSON válido
@@ -26,8 +27,8 @@ export async function generarRespuesta(mensaje) {
         reject("El script de Python falló");
       }
     });
-
-    process.stdin.write(mensaje);
+    console.log("Mensaje que se envía a Python:", JSON.stringify(mensaje, null, 2));
+    process.stdin.write(mensaje); // 🔥 Ya está en formato string válido
     process.stdin.end();
   });
 }

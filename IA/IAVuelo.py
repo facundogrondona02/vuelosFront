@@ -82,31 +82,51 @@ Respondé SOLO con el objeto JSON puro (sin texto adicional, sin explicaciones).
 --- 
 **Reglas y detalles importantes:**
 2. El destino (`origenVuelta`) debe ser un lugar valido⚠ IMPORTANTE:
-3. Niños: entre 3 y 11 años inclusive. Bebés (infants): menores de 3 años.
 
 --- 
 =======================
-1. Interpretación de pasajeros
+1. INTERPRETACIÓN ROBUSTA DE PASAJEROS
 =======================
 
-- Considerá que la persona que escribe el mensaje viaja (1 adulto), salvo que diga lo contrario.
-- Palabras como "mi esposa", "mi marido", "mi pareja", "mi amigo", "mi hermano", etc. = 1 adulto.
-- Si menciona “mi hijo”, “mis hijos”, “los nenes”, “mi bebé”, etc., deducí si son niños (2 a 11 años) o infantes (menores de 2 años).
-- Inferí la cantidad de personas aunque no se especifique con números exactos, usando sentido común.
+🧠 Tu tarea es detectar con precisión cuántas personas viajan, clasificadas como:
+- adults (12 años o más)
+- children (de 2 a 11 años)
+- infants (menores de 2 años)
 
-**Ejemplos de interpretación**:
+✈️ CLAVES:
+- Siempre asumí que la persona que escribe viaja → suma 1 adulto, **aunque no lo diga explícitamente**.
+- Mencioná como adultos a cada persona nombrada con palabras como: "mi mamá", "mi papá", "mi esposa", "mi pareja", "mi amigo", "mi hijo de 20", etc.
+- Detectá edades explícitas:  
+  - Si dice “tiene 23 años”, o “mi hijo de 14” → contalo como **adulto**
+  - Si dice “mi hija de 8” → contalo como **niño**
+  - Si dice “mi bebé”, “de meses”, o edad menor a 2 → **infante**
+- Si solo dice “menor”, “chiquito”, “nene” → asumí **niño**, salvo que diga claramente “bebé”
+- Nunca mezcles categorías por error: un hijo de 23 **no puede ser niño**
+- Si dice “mis 2 hijos, uno es bebé y otro de 13” → infante + adulto
+- Si es ambiguo, asumí la interpretación más lógica y coherente con la edad o contexto.
 
-| Mensaje del cliente                                | adultos | niños  | infantes |
-|----------------------------------------------------|---------|--------|----------|
-| “Viajo con mi mujer y mis dos hijos”               | 2       | 2      | 0        |
-| “Somos 4: dos adultos y dos chicos”                | 2       | 2      | 0        |
-| “Yo, mi señora y mis tres hijos”                   | 2       | 3      | 0        |
-| “Vamos mi marido, yo y los nenes (son 3)”          | 2       | 3      | 0        |
-| “Somos 2 y un bebé”                                | 2       | 0      | 1        |
-| “Mi esposa, mi hija de 4 y el bebé de meses”       | 2       | 1      | 1        |
-| “Voy solo”                                         | 1       | 0      | 0        |
-| "quiero viajar solo a punta cana solo"             | 1       | 0      | 0        |
----
+👤 Ejemplos:
+
+| Mensaje                                                     | adults | children | infants |
+|-------------------------------------------------------------|--------|----------|---------|
+| "viajo con mi esposa y mis 2 hijos"                         | 2      | 2        | 0       |
+| "yo, mi mamá y mis dos hijos, uno es menor y otro de 23"    | 3      | 1        | 0       |
+| "nos vamos mi señora, mi hijo de 10 y el bebé"              | 2      | 1        | 1       |
+| "viajamos mi hija de 14 y yo"                               | 2      | 0        | 0       |
+| "voy con mi esposa, mi hijo de 2 años y el bebé"            | 2      | 1        | 1       |
+| "me voy solo"                                               | 1      | 0        | 0       |
+| "me quiero ir"                                              | 1      | 0        | 0       |
+| "me quiero ir con mi  hijo"                                 | 1      | 1        | 0       |
+| "me quiero ir con mi  hijo de 22"                           | 2      | 0        | 0       |
+| "me quiero ir con mi  hijo de 22 y mi mama"                 | 3      | 0        | 0       |
+| "quiero un viaje para 2 mayore y un menor "                 | 2      | 1        | 0       |
+| "viajo vcon"                 | 3      | 0        | 0       |
+
+🛑 Nunca devuelvas números incorrectos. Detectar edades bien es crucial para la reserva.
+
+Generá siempre las claves `"adults"`, `"children"` y `"infants"` correctamente.
+
+
 =======================
 2. Interpretación de fechas
 =======================
