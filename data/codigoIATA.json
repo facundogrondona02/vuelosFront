@@ -6,5 +6,9 @@
   {
     "ciudad": "Cancun",
     "codigoIATA": "CUN"
+  },
+  {
+    "ciudad": "Punta cana",
+    "codigoIATA": "PUJ"
   }
 ]

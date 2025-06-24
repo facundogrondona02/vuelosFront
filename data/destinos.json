@@ -20,5 +20,16 @@
     "horarioVueltaEntre": "06:00",
     "horarioVueltaHasta": "06:00",
     "stops": "1 escala"
+  },
+  {
+    "ciudad": "Punta cana",
+    "origenVuelta": "PUJ",
+    "maxDuracionIda": "22:00",
+    "maxDuracionVuelta": "22:00",
+    "horarioIdaEntre": "06:00",
+    "horarioIdaHasta": "23:00",
+    "horarioVueltaEntre": "06:00",
+    "horarioVueltaHasta": "23:00",
+    "stops": "1 escala"
   }
 ]

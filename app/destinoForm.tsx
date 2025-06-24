@@ -5,7 +5,7 @@ type Props = {
   onSubmit: (data: FormData) => void;
 };
 
-export function DestinoForm({onSubmit}: Props) {
+export function DestinoForm({ onSubmit }: Props) {
   const [formData, setFormData] = useState({
     ciudad: "",
     origenVuelta: "",
@@ -36,11 +36,22 @@ export function DestinoForm({onSubmit}: Props) {
     });
   };
 
-     function handleSubmit(e: React.FormEvent<HTMLFormElement>){
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     console.log("Formulario enviado:", formData);
-    onSubmit(formData)
-  };
+    setFormData({
+      ciudad: "",
+      origenVuelta: "",
+      maxDuracionIda: "",
+      maxDuracionVuelta: "",
+      horarioIdaEntre: "",
+      horarioIdaHasta: "",
+      horarioVueltaEntre: "",
+      horarioVueltaHasta: "",
+      stops: "",
+    });
+    onSubmit(formData);
+  }
 
   return (
     <form

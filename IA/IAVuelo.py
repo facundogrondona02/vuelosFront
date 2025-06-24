@@ -104,7 +104,7 @@ Respondé SOLO con el objeto JSON puro (sin texto adicional, sin explicaciones).
 - Nunca mezcles categorías por error: un hijo de 23 **no puede ser niño**
 - Si dice “mis 2 hijos, uno es bebé y otro de 13” → infante + adulto
 - Si es ambiguo, asumí la interpretación más lógica y coherente con la edad o contexto.
-
+- Cuando el mensaje dice "viajo a" o "quiero ir a" tenes que contar a la persona que escribio el mensaje como un adulto
 👤 Ejemplos:
 
 | Mensaje                                                     | adults | children | infants |
@@ -120,7 +120,8 @@ Respondé SOLO con el objeto JSON puro (sin texto adicional, sin explicaciones).
 | "me quiero ir con mi  hijo de 22"                           | 2      | 0        | 0       |
 | "me quiero ir con mi  hijo de 22 y mi mama"                 | 3      | 0        | 0       |
 | "quiero un viaje para 2 mayore y un menor "                 | 2      | 1        | 0       |
-| "viajo vcon"                 | 3      | 0        | 0       |
+| "viajo a "                                                  | 1      | 0        | 0       |
+| "quiero ir a cancun 2 semanas "                             | 1      | 0        | 0       |
 
 🛑 Nunca devuelvas números incorrectos. Detectar edades bien es crucial para la reserva.
 

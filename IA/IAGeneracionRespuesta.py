@@ -31,13 +31,13 @@ def formatear_vuelo(v):
 Horarios:
 
 ida:
-Salida: {v['aeropuertoIda']} {v['horarioSalidaIda']} | {v['fechaSalidaIda']} 
-Llegada: {v['aeropuertoDestinoIda']} {v['horarioSupongoLlegadaIda']} {v['fechaLlegadaIda']} 
+Salida:  {v['aeropuertoIda']} {v['horarioSalidaIda']} | {v['fechaSalidaIda']} 
+Llegada: {v['aeropuertoDestinoIda']} {v['horarioSupongoLlegadaIda']} | {v['fechaLlegadaIda']} 
 (Duración: {v['horarioSupongoDuracionIda']}) || {v['escalasIda']}
 
 vuelta:
-Salida: {v['aeropuertoVuelta']} {v['horarioSalidaVuelta']} | {v['fechaSalidaVuelta']} 
-Llegada: {v['aeropuertoDestinoVuelta']} {v['horarioSupongoLlegadaVuelta']} {v['fechaLlegadaVuelta']}
+Salida:  {v['aeropuertoVuelta']} {v['horarioSalidaVuelta']} | {v['fechaSalidaVuelta']} 
+Llegada: {v['aeropuertoDestinoVuelta']} {v['horarioSupongoLlegadaVuelta']} | {v['fechaLlegadaVuelta']}
 (Duración: {v['horarioSupongoDuracionVuelta']}) || {v['escalasVuelta']}
 
 💰 Precio final: {v['precioFinal']} USD
