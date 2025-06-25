@@ -30,9 +30,10 @@ const defaultMensaje: Mensaje = {
 };
 interface Props {
   onSubmit: (data: Mensaje) => void;
+  loading?: boolean | null;
 }
 
-export function FlightForm({ onSubmit }: Props) {
+export function FlightForm({ onSubmit, loading }: Props) {
   const [formData, setFormData] = useState<Mensaje>(defaultMensaje);
 
   function handleChange(
@@ -119,8 +120,14 @@ export function FlightForm({ onSubmit }: Props) {
       </div>
       <button
         type="submit"
-        className="w-full bg-indigo-600 text-white font-semibold py-3 rounded-md
-               hover:bg-indigo-700 transition-colors duration-300"
+        disabled={loading ? true : false}
+        className={`w-full  text-white font-semibold py-3 rounded-md
+                transition-colors duration-300
+                   ${
+                     loading
+                       ? "bg-gray-400 cursor-not-allowed"
+                       : "bg-indigo-600  hover:bg-indigo-700 cursor-pointer"
+                   }`}
       >
         Buscar vuelos
       </button>

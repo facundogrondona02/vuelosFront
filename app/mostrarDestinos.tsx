@@ -18,7 +18,7 @@ interface MostrarDestinosProps {
   crearDestino: (destino: Destino) => void;
 }
 
-export function MostrarDestinos({ crearDestino }: MostrarDestinosProps) {
+export function MostrarDestinos({ crearDestino  }: MostrarDestinosProps) {
   const [destinos, setDestinos] = useState<Destino[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);

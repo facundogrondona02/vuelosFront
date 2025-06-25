@@ -56,7 +56,7 @@ export default function Home() {
           >
             Destinos
           </button>
-          <FlightForm onSubmit={handleFlightFormSubmit} />
+          <FlightForm onSubmit={handleFlightFormSubmit}  loading={loading}/>
           {loading ? (
             <p className="text-center mt-4">Esperando respuesta del bot...</p>
           ) : (
