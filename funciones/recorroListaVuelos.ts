@@ -130,9 +130,9 @@ export default async function recorroListaVuelos(page: Page) {
 
                 // vueloFinal.fechaLlegadaVuelta = await fila.locator('//*[@id="flight-detail-information"]/div/div[3]/div/div[2]/div[3]/p[1]/strong').first().textContent() ?? "";
                 const bloquesVuelo = await fila.locator('#flight-detail-information').all();
-
+                // const visible = await fila.locator('#flight-detail-information').isVisible();
                 // Verificamos que haya al menos dos bloques (ida y vuelta)
-                if (bloquesVuelo.length >= 2) {
+                if (bloquesVuelo.length >= 2 ) {
                     // 👉 Primer bloque: IDA
                     const ida = bloquesVuelo[0];
                     const fechasIda = ida.locator('p.leg-departure-date >> strong');

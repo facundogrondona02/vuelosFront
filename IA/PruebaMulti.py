@@ -5,15 +5,9 @@ import json
 import re
 import os
 from rapidfuzz import process, fuzz
-from concurrent.futures import ThreadPoolExecutor
 
-def generar_ambas_llamadas(mensaje):
-    with ThreadPoolExecutor(max_workers=2) as executor:
-        future_fechas = executor.submit(generar_multi_busqueda, mensaje)
-        future_parametros = executor.submit(generar_todo_lo_demas, mensaje)
-        fechas = future_fechas.result()
-        parametros = future_parametros.result()
-    return fechas, parametros
+
+
 def generar_multi_busqueda(mensaje):
     with open('IA/ejemplos_multi.json', 'r', encoding='utf-8') as f:
         ejemplos_json = json.load(f)
@@ -71,6 +65,21 @@ Si el mensaje dice algo como “cualquier fecha de [mes], [X] noches” o “nos
   {{"departureDate": "23SEP", "returnDate": "30SEP"}}
 ]
 ------
+⚠️ Si el mensaje contiene únicamente una duración (como "7 noches en enero", "10 noches en septiembre") sin fechas específicas ni rangos:
+- DEBÉS generar **exactamente 5 combinaciones distintas de ida y vuelta**.
+- **Cada salida debe estar espaciada al menos 4 o 5 días de la anterior.**
+- Las fechas deben estar **distribuidas equitativamente a lo largo del mes** (no todas en la misma semana).
+- No generes fechas corridas día por día.  
+
+✅ Ejemplo correcto para “7 noches en enero”:
+[
+  {{"departureDate": "03JAN", "returnDate": "10JAN"}},
+  {{"departureDate": "08JAN", "returnDate": "15JAN"}},
+  {{"departureDate": "13JAN", "returnDate": "20JAN"}},
+  {{"departureDate": "18JAN", "returnDate": "25JAN"}},
+  {{"departureDate": "23JAN", "returnDate": "30JAN"}}
+]
+
 
 1️⃣ **Detectar todas las fechas de salida posibles** (departureDate) expresadas en el mensaje.  
    - Pueden ser días puntuales (ej: "el 4 de septiembre", "2 o 3 de agosto").  
@@ -279,34 +288,8 @@ Respuesta:
 - No agregar texto extra, solo el array JSON válido con doble llave en los objetos.
 
 ---
+###################
 
-### MENSAJE A PROCESAR:
-
-"{mensaje}"
-
-
-    """
-
-    response = ollama.chat(
-        model="llama3.2",
-        messages=[{"role": "user", "content": prompt}],
-        options={"temperature": 0}
-    )
-    content = response["message"]["content"]
-
-    try:
-        limpio = limpiar_json(content)  # asumí que limpia el string para obtener JSON válido
-        fechas = json.loads(limpio)     # antes usabas json.loads(content) directamente, que fallaba
-        if not fechas:
-            raise ValueError("Array vacío")
-    except Exception as e:
-        print(f"Error parseando JSON: {e}")
-        fechas = []  # devolver un array vacío o un fallback válido
-    return fechas
-
-def generar_todo_lo_demas(mensaje):
-       
-    prompt2= f"""
 Sos una IA que recibe mensajes en español y debe devolver solo un único objeto JSON con las siguientes claves exactas:
 
 - origenVuelta: lugar de destino, puede ser un ciudad o pais
@@ -476,48 +459,31 @@ Tenes que interpretar el lugar donde quiere ir el cliente segun el mensaje, pued
 
 Solo devolver un único objeto JSON, sin texto adicional ni explicaciones.
 
-MENSAJE DEL CLIENTE:
-{mensaje}
 
 
-"""
+Junta los dos Json que creaste en uno solo, el primero con las fechas y el segundo con los pasajeros, y devolvelo como un array de objetos JSON.
+### MENSAJE A PROCESAR:
 
-    respuesta = ollama.chat(
+"{mensaje}"
+
+    """
+
+    response = ollama.chat(
         model="llama3.2",
-        messages=[{"role": "user", "content": prompt2}],
-        options={
-            "temperature": 0
-        }
+        messages=[{"role": "user", "content": prompt}],
+        options={"temperature": 0}
     )
+    content = response["message"]["content"]
 
-    content = respuesta["message"]["content"]
     try:
-       limpio = limpiar_json(content)
-       params = json.loads(limpio)
+        limpio = limpiar_json(content)  # asumí que limpia el string para obtener JSON válido
+        fechas = json.loads(limpio)     # antes usabas json.loads(content) directamente, que fallaba
+        if not fechas:
+            raise ValueError("Array vacío")
     except Exception as e:
-        print("Error al parsear parámetros:", e)
-        params = {}
-
-    return params
-
-def fusionar_resultados(fechas, parametros):
-    resultado_semifinal = []
-    if not fechas or not parametros:
-        return fechas  # retorno vacío si falló algo antes
-
-    # Si parametros no es lista, lo transformo a lista para evitar errores
-    if not isinstance(parametros, list):
-        parametros = [parametros]
-
-    for fecha in fechas:
-        for param in parametros:
-            combinado = param.copy()  # copio el dict para no modificar el original
-            combinado['departureDate'] = fecha['departureDate']
-            combinado['returnDate'] = fecha['returnDate']
-            resultado_semifinal.append(combinado)
-
-    return resultado_semifinal
-
+        print(f"Error parseando JSON: {e}")
+        fechas = []  # devolver un array vacío o un fallback válido
+    return fechas
 
 def obtener_codigos_iata_lista(destinos, ruta_json="data/codigoIATA.json"):
     if not isinstance(destinos, list):
@@ -635,8 +601,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     mensaje = sys.argv[1]
-    fechas, parametros = generar_ambas_llamadas(mensaje)
-    resultado = fusionar_resultados(fechas, parametros)
-    destinoFinal =obtener_codigos_iata_lista(resultado)
+    todo = generar_multi_busqueda(mensaje)
+    # parametros = generar_todo_lo_demas(mensaje)
+    destinoFinal = obtener_codigos_iata_lista(todo)
     resultadoFinal = completar_objetos_finales(destinoFinal)
     print(json.dumps(resultadoFinal, indent=2, ensure_ascii=False))

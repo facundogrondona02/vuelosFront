@@ -122,12 +122,8 @@ export function FlightForm({ onSubmit, loading }: Props) {
         type="submit"
         disabled={loading ? true : false}
         className={`w-full  text-white font-semibold py-3 rounded-md
-                transition-colors duration-300
-                   ${
-                     loading
-                       ? "bg-gray-400 cursor-not-allowed"
-                       : "bg-indigo-600  hover:bg-indigo-700 cursor-pointer"
-                   }`}
+                transition-colors duration-300 bg-indigo-600  hover:bg-indigo-700 cursor-pointer
+               `}
       >
         Buscar vuelos
       </button>

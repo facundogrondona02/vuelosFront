@@ -6,6 +6,7 @@ import { scrapingVuelos } from './funciones/scraping';
 
 test.use({ storageState: 'storage/estadoSesion.json' });
 
+ 
 const sampleFlightData = {
   mail: 'franco@melincue.tur.ar',
   password: 'Francomase12!',
@@ -24,9 +25,10 @@ const sampleFlightData = {
   horarioVueltaEntre: '00:30',
   horarioVueltaHasta: '23:57',
   maxDuracionIda: '25:00',
-  maxDuracionVuelta: '25:00'
-}
- 
+  maxDuracionVuelta: '25:00',
+  carryon: false, // o true según lo que necesites
+  bodega: false   // o true según lo que necesites
+};
 
 test('scraping vuelos', async ({ page }) => {
  

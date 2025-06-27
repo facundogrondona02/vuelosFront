@@ -119,7 +119,6 @@ export async function scrapingVuelos(params: ScrapingVuelosParams): Promise<Vuel
       await salidaInput.fill(departureDate);
       console.log("✔ Fecha de salida completada:", departureDate);
     }
-    await page.waitForTimeout(3000);
     console.log(returnDate, " retorno")
     const regresoInput = page.locator(`//input[@placeholder='10OCT']`);
     if (await regresoInput.isVisible()) {
@@ -160,7 +159,6 @@ export async function scrapingVuelos(params: ScrapingVuelosParams): Promise<Vuel
     console.log("✔ Click en Buscar vuelos. Esperando resultados...");
 
     // === FILTROS DE ESCALAS ===
-    await page.waitForTimeout(5000);
 
     await page.locator('//*[@id="content"]/div/div[1]/div/div[2]/div[1]/button').click();
     console.log("✔ Filtros abiertos");
@@ -234,7 +232,7 @@ export async function scrapingVuelos(params: ScrapingVuelosParams): Promise<Vuel
 
     // === ESPERAR RESULTADOS ===
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(3000);
+    // await page.waitForTimeout(3000);
 
     const tablaCount = await page.locator('//*[@id="content"]/div/div[2]/table/tbody').count();
     const isVisible = await page.locator('//*[@id="content"]/div/div[2]/table/tbody').first().isVisible();
@@ -245,7 +243,7 @@ export async function scrapingVuelos(params: ScrapingVuelosParams): Promise<Vuel
     }
 
     // === RECORRER LISTA DE VUELOS ===
-    await page.waitForTimeout(3000);
+    // await page.waitForTimeout(3000);
 
   const res = await recorroListaVuelos(page);
 
