@@ -22,40 +22,40 @@
     },
     {
       "name": "_ga",
-      "value": "GA1.1.804518328.1750960512",
+      "value": "GA1.1.100276753.1751042736",
       "domain": ".sudameria.com",
       "path": "/",
-      "expires": 1785520511.908367,
+      "expires": 1785602736.449803,
       "httpOnly": false,
       "secure": false,
       "sameSite": "Lax"
     },
     {
       "name": "_hjSessionUser_3632404",
-      "value": "eyJpZCI6IjExMjFiMmU3LTAzNmQtNTRiNC1hYjdjLTZmYzcwZWFmNTAxYSIsImNyZWF0ZWQiOjE3NTA5NjA1MTE5OTAsImV4aXN0aW5nIjpmYWxzZX0=",
+      "value": "eyJpZCI6IjY5ZDFiODhiLWQ5MjgtNTZjYS04MzVlLTJmNWNkMmY0ZmI1ZiIsImNyZWF0ZWQiOjE3NTEwNDI3MzY1NjUsImV4aXN0aW5nIjpmYWxzZX0=",
       "domain": ".sudameria.com",
       "path": "/",
-      "expires": 1782496511,
+      "expires": 1782578736,
       "httpOnly": false,
       "secure": true,
       "sameSite": "None"
     },
     {
       "name": "_hjSession_3632404",
-      "value": "eyJpZCI6ImZmYTY2OTMwLWFjOGUtNDI1YS1iNGM3LTAyMTFkMDJhNDdhZiIsImMiOjE3NTA5NjA1MTE5OTAsInMiOjAsInIiOjAsInNiIjowLCJzciI6MCwic2UiOjAsImZzIjoxLCJzcCI6MH0=",
+      "value": "eyJpZCI6IjUzZjhmY2FmLWMzNzEtNGRiZS1iYjI0LWYwY2I3ZjljN2RjOSIsImMiOjE3NTEwNDI3MzY1NjUsInMiOjAsInIiOjAsInNiIjowLCJzciI6MCwic2UiOjAsImZzIjoxLCJzcCI6MX0=",
       "domain": ".sudameria.com",
       "path": "/",
-      "expires": 1750962311,
+      "expires": 1751044536,
       "httpOnly": false,
       "secure": true,
       "sameSite": "None"
     },
     {
       "name": "_ga_VZXJTFSSD2",
-      "value": "GS2.1.s1750960511$o1$g0$t1750960521$j50$l0$h0",
+      "value": "GS2.1.s1751042736$o1$g1$t1751042745$j51$l0$h0",
       "domain": ".sudameria.com",
       "path": "/",
-      "expires": 1785520521.389053,
+      "expires": 1785602745.590432,
       "httpOnly": false,
       "secure": false,
       "sameSite": "Lax"
@@ -67,7 +67,7 @@
       "localStorage": [
         {
           "name": "user",
-          "value": "{\"AccessToken\":\"eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNyc2Etc2hhMjU2IiwidHlwIjoiSldUIn0.eyJzdWIiOiJmcmFuY29AbWVsaW5jdWUudHVyLmFyIiwianRpIjoiMmUwOWZmZTQtY2EyNS00ZTY4LWFlNzQtMTY0M2YzNGQ0ZjNkIiwiaWF0IjoxNzUwOTYwNTI2LCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjpbImZyYW5jb0BtZWxpbmN1ZS50dXIuYXIiLCJmcmFuY29AbWVsaW5jdWUudHVyLmFyIl0sIkNsYWltcy5DaGFubmVsIjoiR1dDIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvZW1haWxhZGRyZXNzIjoiZnJhbmNvQG1lbGluY3VlLnR1ci5hciIsIkNsYWltcy5Vc2VySWQiOiJhNDQwZGI1ZC0xNzE5LTRhZmEtYjJhYi1jNjBhNGZkYzllZjAiLCJDbGFpbXMuU2Vzc2lvbklkIjoiMGE3ZDdjZTYtZWRjNi00NzZlLTk1ZWYtMDVmMDVmNWJhNjMzIiwiQ2xhaW1zLkNhblN3aXRjaENvbXBhbnkiOiJGYWxzZSIsIkNsYWltcy5Vc2VyRmlyc3ROYW1lIjoiRnJhbmNvIiwiQ2xhaW1zLlVzZXJMYXN0TmFtZSI6Ii4iLCJleHAiOjE3NTEwNDY5MjYsImlzcyI6Ik5ldHZpYXguR1dDIiwiYXVkIjoiTmV0dmlheC5HV0MuQXVkaWVuY2UifQ.fgkZyNVmp0rntbmn-DbEzHvU2dqRFxu0SCWUs7KUrOL-tKFD1U45xiM0DUXAc7CiCikfy50PK9ZoBPALjLASzai8_Ewrd1vkRfGxEnx1yrzEygYgdu9fXRJeoQksPDSwJFuEi87CZKK9T80gm68zzeU_lumEES7MQSH8hxJtKjSVWjfPCOs40Ew9wPGADAnk512u94BsBdPA3_pV5i9_Ksu0DvAv96ap-v4Wzni3CVj6OHpUXjN9zplHmT4fokgE0xuUqyFLi_eBey6JOwz49zErRNNdv-aSOTglTeXIqqPDktx-xv55DVPYDEBycrmZri8XrD50sZG6LnRo_jIUkA\",\"ExpiresInSeconds\":28800,\"IsUserSuccessfullyLogedIn\":true,\"CanSwitchCompany\":false,\"CanOperateOnBehalfOf\":false,\"UserId\":\"a440db5d-1719-4afa-b2ab-c60a4fdc9ef0\",\"SessionId\":\"0a7d7ce6-edc6-476e-95ef-05f05f5ba633\",\"TimeStamp\":\"2025-06-26T14:55:25.439-03:00\",\"Name\":\"franco@melincue.tur.ar\",\"Email\":\"franco@melincue.tur.ar\"}"
+          "value": "{\"AccessToken\":\"eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNyc2Etc2hhMjU2IiwidHlwIjoiSldUIn0.eyJzdWIiOiJmcmFuY29AbWVsaW5jdWUudHVyLmFyIiwianRpIjoiYmM5NWNjM2EtODRmZS00NmFkLTk2ZTktZmNkYmU4ZDMxODRjIiwiaWF0IjoxNzUxMDQyNzQ0LCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjpbImZyYW5jb0BtZWxpbmN1ZS50dXIuYXIiLCJmcmFuY29AbWVsaW5jdWUudHVyLmFyIl0sIkNsYWltcy5DaGFubmVsIjoiR1dDIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvZW1haWxhZGRyZXNzIjoiZnJhbmNvQG1lbGluY3VlLnR1ci5hciIsIkNsYWltcy5Vc2VySWQiOiJhNDQwZGI1ZC0xNzE5LTRhZmEtYjJhYi1jNjBhNGZkYzllZjAiLCJDbGFpbXMuU2Vzc2lvbklkIjoiOTZkNWQ0YjgtNzc2OC00Yzg1LThmYjktZDg2ZGRlZDUyMTUyIiwiQ2xhaW1zLkNhblN3aXRjaENvbXBhbnkiOiJGYWxzZSIsIkNsYWltcy5Vc2VyRmlyc3ROYW1lIjoiRnJhbmNvIiwiQ2xhaW1zLlVzZXJMYXN0TmFtZSI6Ii4iLCJleHAiOjE3NTExMjkxNDQsImlzcyI6Ik5ldHZpYXguR1dDIiwiYXVkIjoiTmV0dmlheC5HV0MuQXVkaWVuY2UifQ.n_X8CtNXXtnz19GjN6OLn-luI9jH0LixqUg-4jsnjBPyR6ja7ctj7x-fm_X67HFczZJHWVSa9VW3naWi5Yi1eFjbvgciKxN9qCeqc9mynrOo9SfzDyKPoUbR0FmOu8bzm_8JxV6ncsV_VTfs0HfXtrDUtXhxZwqY_F4PYxg7Bpx9vSuCSLfsE8AA3o9xRX3U4voCPSjLF5xYaLPuqH-9G8hW0WilqeQvf2D6kgdyg26Q_5W_zFqUl8n4TNRTRcW86jkFXoVycpP-mswzJByas7WvhPriJMie84FYnHU7Qp6CsGqWr1AR-gbs703Kec2dJXwdPSvOXtReXbJSsFLvYw\",\"ExpiresInSeconds\":28800,\"IsUserSuccessfullyLogedIn\":true,\"CanSwitchCompany\":false,\"CanOperateOnBehalfOf\":false,\"UserId\":\"a440db5d-1719-4afa-b2ab-c60a4fdc9ef0\",\"SessionId\":\"96d5d4b8-7768-4c85-8fb9-d86dded52152\",\"TimeStamp\":\"2025-06-27T13:45:44.051-03:00\",\"Name\":\"franco@melincue.tur.ar\",\"Email\":\"franco@melincue.tur.ar\"}"
         },
         {
           "name": "Session.User.AuthenticationInformation.SelectedCompany",

@@ -1,28 +1,35 @@
 import { Page } from "@playwright/test";
 
-
 export async function hacerLogin(page: Page, mail: string, password: string): Promise<void> {
   console.log("🔐 Iniciando login...");
 
-  await page.goto('https://aereos.sudameria.com/Login', { waitUntil: "domcontentloaded" });
+  try {
+    await page.goto('https://aereos.sudameria.com/Login', { waitUntil: "domcontentloaded" });
 
-  const usuarioInput = page.getByRole('textbox', { name: 'Usuario' });
-  const contrasenaInput = page.getByRole('textbox', { name: 'Contraseña' });
+    const usuarioInput = page.getByRole('textbox', { name: 'Usuario' });
+    const contrasenaInput = page.getByRole('textbox', { name: 'Contraseña' });
 
-  await Promise.all([
-    usuarioInput.waitFor({ state: 'visible', timeout: 20000 }),
-    contrasenaInput.waitFor({ state: 'visible', timeout: 20000 }),
-  ]);
+    await Promise.all([
+      usuarioInput.waitFor({ state: 'visible', timeout: 20000 }),
+      contrasenaInput.waitFor({ state: 'visible', timeout: 20000 }),
+    ]);
 
-  await usuarioInput.fill(mail);
-  await contrasenaInput.fill(password);
-  await page.getByRole('button', { name: 'Entrar' }).click();
+    await usuarioInput.fill(mail);
+    await contrasenaInput.fill(password);
+    await page.getByRole('button', { name: 'Entrar' }).click();
 
-  // Esperar que redirija a /search confirmando login exitoso
-  await page.waitForURL('**/search', { timeout: 10000 });
+    // Confirmar que el login fue exitoso
+    await page.waitForURL('**/search', { timeout: 10000 });
 
-  // Guardar sesión
-  await page.context().storageState({ path: 'session.json' });
+    // Esperar que se estabilice la página (opcional pero recomendable)
+    await page.waitForLoadState("networkidle");
 
-  console.log("✅ Login exitoso y estado guardado");
+    // Guardar sesión solo si llegó hasta acá sin tirar error
+    await page.context().storageState({ path: 'session.json' });
+
+    console.log("✅ Login exitoso y sesión guardada");
+  } catch (error) {
+    console.error("❌ Error durante el login:", error);
+    throw error;
+  }
 }

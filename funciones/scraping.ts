@@ -5,6 +5,7 @@ import DuracionVueloIda from '../componentes/DuracionVueloIda';
 import { ajustarSliderVueloVuelta } from '../componentes/DuracionVueloVuelta';
 import HorarioSalidaIda from '../componentes/HorarioSalidaIda';
 import HorarioSalidaVuelta from '../componentes/HorarioSalidaVuelta';
+import type { Page, BrowserContext } from 'playwright';
 
 interface ScrapingVuelosParams {
   mail: string,
@@ -79,18 +80,29 @@ export async function scrapingVuelos(params: ScrapingVuelosParams): Promise<Vuel
     bodega
   } = params;
 
+
+  interface GetContextParams {
+    context: BrowserContext;
+    page: Page;
+    estaLogueado: boolean;
+  }
+
   // 1. Obtener contexto con sesión válida
   // Esta función interna revisa si existe sesión guardada y si está activa,
   // si no, hace login y guarda sesión automáticamente
-  const { /*browser,*/ context, page, estaLogueado } = await getContextConSesionValida({ mail, password });
+  const contextResult = await getContextConSesionValida({ mail, password });
+  if (!contextResult) {
+    throw new Error("No se pudo obtener el contexto con sesión válida.");
+  }
+  const { /*browser,*/  page, estaLogueado } = contextResult as GetContextParams;
 
   try {
     if (!estaLogueado) {
       console.log("🔐 Sesión expirada o inválida. Rehaciendo login...");
       await hacerLogin(page, mail, password);
       // Guardar la sesión después de login
-      await context.storageState({ path: 'session.json' });
-      console.log("💾 Sesión guardada en session.json");
+      // await context.storageState({ path: 'session.json' });
+      // console.log("💾 Sesión guardada en session.json");
     } else {
       console.log("✅ Sesión válida encontrada, sin necesidad de login");
     }
