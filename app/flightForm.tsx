@@ -122,7 +122,11 @@ export function FlightForm({ onSubmit, loading }: Props) {
         type="submit"
         disabled={loading ? true : false}
         className={`w-full  text-white font-semibold py-3 rounded-md
-                transition-colors duration-300 bg-indigo-600  hover:bg-indigo-700 cursor-pointer
+                transition-colors duration-300 ${
+                  loading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 cursor-pointer"
+                } 
                `}
       >
         Buscar vuelos

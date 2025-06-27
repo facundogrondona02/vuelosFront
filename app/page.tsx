@@ -12,14 +12,33 @@ export default function Home() {
   async function handleFlightFormSubmit(data: Mensaje) {
     setLoading(true);
     console.log(data, " data desde page");
-    const res = await fetch("/api/scraping", {
+    fetch("/api/scraping", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
-    });
-    const { result } = await res.json();
-    setMensaje(result || "No se pudo obtener el costo del vuelo.");
-    setLoading(false);
+    })
+      .then((res) => res.json()) // 👈 acá faltaba el return implícito
+      .then((data) => {
+        console.log(data.ok, " data desde page y ", data.status);
+        // Podés manejar diferentes respuestas del backend:
+        if (data.ok) {
+          setMensaje(data.result || "Scraping exitoso, pero no se devolvió mensaje.");
+          setLoading(false);
+        } else {
+          setMensaje("El scraping falló: " + data.mensaje);
+          setLoading(false);
+        }
+      })
+      .catch((error) => {
+        console.error("Error al enviar el formulario:", error);
+        setMensaje("Ocurrió un error al enviar el formulario.");
+        setLoading(false);
+      });
+
+    // const { result, ok } = await res.json();
+    // console.log("Respuesta del servidor:", ok);
+
+    // setMensaje(ok || "No se pudo obtener el costo del vuelo.");
   }
 
   async function guardarDestino(data: FormData) {
@@ -56,7 +75,7 @@ export default function Home() {
           >
             Destinos
           </button>
-          <FlightForm onSubmit={handleFlightFormSubmit}  loading={loading}/>
+          <FlightForm onSubmit={handleFlightFormSubmit} loading={loading} />
           {loading ? (
             <p className="text-center mt-4">Esperando respuesta del bot...</p>
           ) : (

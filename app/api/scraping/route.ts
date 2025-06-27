@@ -53,7 +53,7 @@ export async function POST(req: Request) {
   //     return await scrapingVuelos(vuelo)
   //   });
   // const scrapingResults = await Promise.all(scrapingPromises);
-
+try {
   const respuestas: VueloFinal[] = [];
 
   // Verificás UNA SOLA VEZ si está logueado antes de entrar al for
@@ -102,5 +102,15 @@ export async function POST(req: Request) {
   const jsonData = JSON.stringify(respuestas);
   const response = await generarRespuesta(jsonData)
   console.log(response, " respuestas")
-  return NextResponse.json({ result: response });
+  // return NextResponse.json({ result: response });
+    return NextResponse.json({ ok: true, result: response,  status: 200 });
+
+} catch (error) {
+  console.error("❌ Error general inesperado:", error);
+  return NextResponse.json({
+    ok: false,
+    result: "Ocurrió un error inesperado durante la ejecución del scraping.",
+    detalle: error instanceof Error ? error.message : error
+  },{status: 500});
+}
 }
