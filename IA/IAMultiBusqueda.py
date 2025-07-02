@@ -14,296 +14,243 @@ def generar_ambas_llamadas(mensaje):
         fechas = future_fechas.result()
         parametros = future_parametros.result()
     return fechas, parametros
+import json
+# Si la función limpiar_json no está definida en este archivo, asegúrate de importarla
+# from .utils import limpiar_json 
+# (o donde sea que la tengas definida)
+def limpiar_mensaje_usuario(mensaje):
+    """
+    Normaliza el mensaje del usuario para reducir la sensibilidad del LLM
+    a variaciones de espacios y puntuación.
+    """
+    # Estandariza el espacio después de la coma: ",X" se convierte en ", X"
+    mensaje = mensaje.replace(",", ", ")
+    # Normaliza múltiples espacios a uno solo
+    mensaje = " ".join(mensaje.split())
+    # Elimina espacios al inicio y al final
+    mensaje = mensaje.strip()
+    return mensaje
+
+import json
+import ollama # Asumo que tu librería de Ollama está bien configurada
+import datetime # Para los cálculos de fechas en Python si tuvieras que hacer un fallback
+
 def generar_multi_busqueda(mensaje):
-    with open('IA/ejemplos_multi.json', 'r', encoding='utf-8') as f:
-        ejemplos_json = json.load(f)
-
+    mensaje_procesado = limpiar_mensaje_usuario(mensaje)
     prompt = f"""
-⚠️ SOS UNA IA EXPERTA EN INTERPRETACIÓN DE FECHAS DE VIAJE DESDE LENGUAJE NATURAL EN ESPAÑOL.  Me voy con mi mujer y dos hijos a cancun entre el 8 y 11  hasta el 25 noviembre 
-NO SOS UN CHATBOT, NO RESPONDÉS CON TEXTO, NO PROGRAMÁS, NO ACLARÁS NADA. SOLO TRANSFORMÁS.
+Eres una IA especializada en interpretar intenciones de viaje y devolver FECHAS en un formato JSON muy específico.
+NO ERES UN CHATBOT. NO HABLES. NO EXPLICUES NADA. NO AGREGUES TEXTO INTRODUCTORIO NI FINAL.
+**TU ÚNICA TAREA ES GENERAR UN ARRAY JSON VÁLIDO Y NO VACÍO.**
 
-TU ÚNICA FUNCIÓN es transformar un mensaje de una persona en un ARRAY JSON válido y NO VACÍO que contenga fechas posibles de salida y regreso, en el siguiente formato ESTRICTO:
+---
 
+### REGLA DE FORMATO MÁS IMPORTANTE (CRÍTICA):
+
+Cada objeto JSON dentro del array debe estar **SIEMPRE** envuelto en **DOBLE LLAVE `{{` y `}}`**. Esto es **OBLIGATORIO** para que tu sistema lo procese correctamente.
+
+El formato final de tu salida **DEBE SER EXACTAMENTE ASÍ**:
+
+```json
 [
   {{"departureDate": "DDMMM", "returnDate": "DDMMM"}},
-  ...
+  {{"departureDate": "DDMMM", "returnDate": "DDMMM"}},
+  // ... y así sucesivamente para CADA combinación de fecha.
 ]
+REPITO ENFÁTICAMENTE: La salida debe ser SOLO EL ARRAY JSON PURO. Contendrá SOLAMENTE objetos con las claves "departureDate" y "returnDate". CADA UNO DE ESTOS OBJETOS ESTARÁ ENCERRADO EN DOBLE LLAVE {{}}. NO SE PERMITE NINGUNA OTRA CLAVE (ej. 'mail', 'password', 'origenIda', 'adults', 'currency', 'stops', etc.). CERO TEXTO ADICIONAL, CERO EXPLICACIONES, CERO CÓDIGO FUERA DEL JSON.
 
-PRIMERO INTERPRETAS EL MENSAJE DEL CLIENTE Y ANALIZA QUE PUNTO DE LOS SIGUIENTES CUMPLE Y UTILIZAS SU LOGICA
----
+LÓGICA DE INTERPRETACIÓN DE FECHAS (PRIORIDAD DE CASOS):
+FECHA DE REGRESO EXPLÍCITA (PRIORIDAD ALTA):
 
-### LÓGICA FUNDAMENTAL QUE TENÉS QUE ENTENDER:
-8️⃣⚠️CLAVE: Si El mensaje no menciona fechas específicas solamente una duración de estadía, 
-→ DEBÉS asumir que la persona quiere viajar en cualquier fecha del mes indicado,
- Si el mensaje menciona algo como:
-“me quiero ir 7 noches en septiembre”
+Si el mensaje especifica una fecha de regreso exacta y fija (ej. "vuelvo el 25", "hasta el 10 de octubre"), esa fecha será el returnDate para TODAS las departureDate posibles.
 
-“cualquier fecha de octubre, 10 noches”
-...y NO hay fechas puntuales ni rangos específicos,
+La duración se ignora si hay un returnDate explícito.
 
-→ DEBÉS generar 5 combinaciones distribuidas uniformemente a lo largo del mes indicado, respetando la duración expresada  
-(📌 Ej: 7 noches = 7 días, 10 noches = 10 días, etc.)
+Ejemplo:
 
-⚠️ No debés generar una secuencia corrida de días. Solo 5 combinaciones, **espaciadas y distribuidas a lo largo del mes** para cubrir distintas semanas posibles.
+Mensaje: "puedo salir entre el 8 y el 11 de AGOSTO y vuelvo el 25"
 
-📌 Ejemplo:
-Mensaje: “queremos viajar cualquier fecha de septiembre 7 noches a punta cana”
-→ Respuesta esperada:
+JSON de salida (SOLO JSON):
+
 [
-  {{"departureDate": "04SEP", "returnDate": "11SEP"}},
-  {{"departureDate": "08SEP", "returnDate": "15SEP"}},
-  {{"departureDate": "13SEP", "returnDate": "20SEP"}},
-  {{"departureDate": "18SEP", "returnDate": "25SEP"}},
-  {{"departureDate": "23SEP", "returnDate": "30SEP"}}
+  {{"departureDate": "08AUG", "returnDate": "25AUG"}},
+  {{"departureDate": "09AUG", "returnDate": "25AUG"}},
+  {{"departureDate": "10AUG", "returnDate": "25AUG"}},
+  {{"departureDate": "11AUG", "returnDate": "25AUG"}}
 ]
-------
-⚠️ REGLA CRÍTICA PARA VIAJES EN "CUALQUIER FECHA" DEL MES:
-Si el mensaje dice algo como “cualquier fecha de [mes], [X] noches” o “nos queremos ir en cualquier momento de [mes]”,
-⚠️ DEBÉS generar exactamente 5 combinaciones, bien distribuidas en semanas distintas del mes.
+RANGO DE DÍAS DE SALIDA CON DURACIÓN (PRIORIDAD MEDIA):
 
-❌ NO GENERES fechas seguidas como 01, 02, 03, 04, 05…
-✅ SÍ GENERÁS opciones como:
+Si el mensaje da un rango específico de días de salida dentro de un mes (ej. "entre el 15 y 20", "del 2 al 5") y una duración ("7 noches", "8 días").
+
+departureDate será cada día dentro del rango.
+
+returnDate se calcula sumando la duración a cada departureDate.
+
+Ejemplo:
+
+Mensaje: "me quiero ir una semana a Cancún y puedo salir entre el 15 y 20 de ENERO"
+
+JSON de salida (SOLO JSON):
+
 [
-  {{"departureDate": "03SEP", "returnDate": "10SEP"}},
-  {{"departureDate": "08SEP", "returnDate": "15SEP"}},
-  {{"departureDate": "13SEP", "returnDate": "20SEP"}},
-  {{"departureDate": "18SEP", "returnDate": "25SEP"}},
-  {{"departureDate": "23SEP", "returnDate": "30SEP"}}
+  {{"departureDate": "15JAN", "returnDate": "22JAN"}},
+  {{"departureDate": "16JAN", "returnDate": "23JAN"}},
+  {{"departureDate": "17JAN", "returnDate": "24JAN"}},
+  {{"departureDate": "18JAN", "returnDate": "25JAN"}},
+  {{"departureDate": "19JAN", "returnDate": "26JAN"}},
+  {{"departureDate": "20JAN", "returnDate": "27JAN"}}
 ]
-------
+CUALQUIER FECHA DEL MES CON DURACIÓN FIJA (PRIORIDAD BAJA):
 
-1️⃣ **Detectar todas las fechas de salida posibles** (departureDate) expresadas en el mensaje.  
-   - Pueden ser días puntuales (ej: "el 4 de septiembre", "2 o 3 de agosto").  
-   - Pueden ser rangos de días (ej: "entre el 10 y el 15 de julio").  
-   - Pueden ser semanas o quincenas ("primera quincena de marzo", "segunda semana de mayo").  
-   - Pueden ser expresiones genéricas de tiempo ("principios de agosto", "últimos días de enero").
+Si solo se menciona un mes general y una duración (ej. "7 noches en mayo", "5 días en diciembre", "3 días en enero",  "8 días en agosto", "11 dias en noviembre"), y no hay un rango de días de salida o fecha de regreso explícita.
 
-2️⃣ **Detectar fechas de regreso posibles** (returnDate).
+DEBES generar TODAS LAS COMBINACIONES POSIBLES de salida, día por día, desde el día 01 del mes hasta el ÚLTIMO DÍA NATURAL de ese mes.
 
-   Existen DOS ESCENARIOS POSIBLES:
+returnDate se calcula sumando la duración exacta a cada departureDate. Este cálculo debe manejar correctamente los cruces de mes.
 
-   ▶️ CASO A: Fecha de regreso explícita
-   - Si el mensaje menciona directamente una fecha de regreso, usando expresiones como:  
-     "hasta el 25", "vuelvo el 10", "regreso el 3 de octubre", "vuelvo el domingo 24", etc.  
-   - En ese caso, la fecha de regreso (returnDate) es FIJA y debe mantenerse igual en todos los objetos,  
-     independientemente de cuántas fechas de salida haya.
+Ejemplo:
 
-   ✅ EJEMPLO:
-   "puedo salir entre el 8 y el 11 de noviembre y vuelvo el 25"  
-   → returnDate fijo: "25NOV"  
-   → Resultado:
-   [
-     {{"departureDate": "08NOV", "returnDate": "25NOV"}},
-     {{"departureDate": "09NOV", "returnDate": "25NOV"}},
-     {{"departureDate": "10NOV", "returnDate": "25NOV"}},
-     {{"departureDate": "11NOV", "returnDate": "25NOV"}}
-   ]
+Mensaje: "me quiero ir 7 noches en mayo a cancun"
 
-   ⚠️ En este caso NO debe sumarse una duración ficticia. La fecha indicada prevalece.
+JSON de salida (SOLO JSON):
 
-   ▶️ CASO B: No hay fecha de regreso explícita, pero sí duración
-   - Si el mensaje indica una duración (ej: "2 semanas", "10 días", "una semana y media") pero no una fecha exacta de vuelta,
-     entonces el returnDate debe calcularse de forma dinámica y VARIABLE para cada fecha de salida.
-   - Es decir, a cada departureDate se le suma la cantidad de días especificada para obtener un returnDate diferente por salida.
-
-   ✅ EJEMPLO:
-   "puedo salir entre el 15 y el 20 de septiembre y me quedo 2 semanas"  
-   → Generar un returnDate para cada departureDate, sumando 14 días:
-   [
-     {{"departureDate": "15SEP", "returnDate": "29SEP"}},
-     {{"departureDate": "16SEP", "returnDate": "30SEP"}},
-     {{"departureDate": "17SEP", "returnDate": "01OCT"}},
-     ...
-   ]
-
-
-3️⃣ **Si la suma de días para la fecha de regreso supera el límite del mes de salida, DEBÉS calcular correctamente la fecha que corresponde en el siguiente mes.**  
-   - Por ejemplo, salir el 20SEP y quedarse 14 días → volver el 04OCT.  
-   - Esta suma debe considerar la duración variable de cada mes y no generar fechas inválidas.
-
-4️⃣ **Generar un objeto para cada combinación posible de salida y regreso** según lo que el mensaje sugiere o implica.  
-   - Por ejemplo, si hay dos días de salida posibles y un rango de días de regreso, generá todas las combinaciones posibles.  
-   - Siempre asegurate que las fechas sean válidas y no generes fechas fuera de calendario (ej: no 31FEB).
-
-5️⃣ **Formato estricto y exacto**:  
-   - Día con dos dígitos (01 a 31).  
-   - Mes en inglés y en MAYÚSCULAS: JAN, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DEC.  
-   - La respuesta debe ser SOLO el array JSON puro, sin texto, sin markdown, sin explicaciones, sin comillas extras ni caracteres adicionales.
-
-6️⃣ **Nunca devolvés un array vacío.**  
-   - Si no encontrás fechas claras, hacé un esfuerzo para interpretar el mensaje y generar al menos una opción plausible basada en duración o lógica.  
-   - El objetivo es siempre devolver fechas válidas y consistentes.
-
-7️⃣ **No inventar meses o fechas.**  
-   - Si no se especifica mes o es ambiguo, NO adivinar.  
-   - Solo procesar y devolver fechas que estén claras en el mensaje o que puedan inferirse razonablemente.
-
-
-⚠️ CLAVE:  
-Si el mensaje menciona explícitamente la fecha de regreso (ej: "hasta el 25", "vuelvo el 10 de agosto"),  
-esa fecha debe usarse como valor fijo de `returnDate` en **todos** los objetos generados, sin excepción.
-
-Solo cuando NO haya una fecha explícita, y haya una duración de estadía,  
-el `returnDate` debe calcularse sumando los días correspondientes a cada `departureDate`.
-
-NO mezclar lógicas ni hacer ambas a la vez. Detectá bien el caso y aplicá solo una:
-
-✅ Si hay fecha explícita de vuelta → returnDate fijo para todas las fechas de salida.  
-✅ Si NO hay fecha de regreso pero sí duración → returnDate se calcula por suma, individualmente.
-
-Nunca uses los dos criterios al mismo tiempo.
-
----
-
-### EJEMPLOS DETALLADOS:
-
-Ejemplo 1:  
-Mensaje: "quiero ir a miami 2 semanas y puedo salir el 4 o 5 de septiembre"  
-Respuesta:  
-[  
-  {{"departureDate": "04SEP", "returnDate": "18SEP"}},  
-  {{"departureDate": "05SEP", "returnDate": "19SEP"}}  
-]
-
-Ejemplo 2:  
-Mensaje: "puedo salir entre el 10 y el 12 de julio y volver el 20"  
-Respuesta:  
-[  
-  {{"departureDate": "10JUL", "returnDate": "20JUL"}},  
-  {{"departureDate": "11JUL", "returnDate": "20JUL"}},  
-  {{"departureDate": "12JUL", "returnDate": "20JUL"}}  
-]
-
-Ejemplo 3:  
-Mensaje: "salgo la primera quincena de marzo y me quedo 10 días"  
-Respuesta:  
-[  
-  {{"departureDate": "01MAR", "returnDate": "11MAR"}},  
-  {{"departureDate": "02MAR", "returnDate": "12MAR"}},  
-  ...  
-  {{"departureDate": "15MAR", "returnDate": "25MAR"}}  
-]
-
-Ejemplo 4:  
-Mensaje: "solo puedo salir el 15 de agosto"  
-Respuesta:  
-[  
-  {{"departureDate": "15AUG", "returnDate": "22AUG"}}  
-]
-
-Ejemplo 5:  
-Mensaje: "entre el 20 y el 22 de septiembre y quiero quedarme dos semanas"  
-Respuesta:  
-[  
-  {{"departureDate": "20SEP", "returnDate": "04OCT"}},  
-  {{"departureDate": "21SEP", "returnDate": "05OCT"}},  
-  {{"departureDate": "22SEP", "returnDate": "06OCT"}}  
-]
-
-Ejemplo 6:  
-Mensaje: "entre el 5 y el 8 de octubre o el 12, vuelvo el 20"  
-Respuesta:  
-[  
-  {{"departureDate": "05OCT", "returnDate": "20OCT"}},  
-  {{"departureDate": "06OCT", "returnDate": "20OCT"}},  
-  {{"departureDate": "07OCT", "returnDate": "20OCT"}},  
-  {{"departureDate": "08OCT", "returnDate": "20OCT"}},  
-  {{"departureDate": "12OCT", "returnDate": "20OCT"}}  
-]
-
-Ejemplo 7:  
-Mensaje: "me gustaría salir principios de noviembre y quedarme dos semanas"  
-Respuesta:  
-[  
-  {{"departureDate": "01NOV", "returnDate": "15NOV"}},  
-  {{"departureDate": "02NOV", "returnDate": "16NOV"}},  
-  {{"departureDate": "03NOV", "returnDate": "17NOV"}},  
-  {{"departureDate": "04NOV", "returnDate": "18NOV"}},  
-  {{"departureDate": "05NOV", "returnDate": "19NOV"}}  
-]
-
-Ejemplo 8:
-Mensaje: “nos queremos ir en cualquier fecha de octubre, 10 noches a punta cana”
-Respuesta:
 [
-  {{"departureDate": "02OCT", "returnDate": "12OCT"}},
-  {{"departureDate": "08OCT", "returnDate": "18OCT"}},
-  {{"departureDate": "14OCT", "returnDate": "24OCT"}},
-  {{"departureDate": "20OCT", "returnDate": "30OCT"}},
-  {{"departureDate": "25OCT", "returnDate": "04NOV"}}
+  {{"departureDate": "01MAY", "returnDate": "08MAY"}},
+  {{"departureDate": "02MAY", "returnDate": "09MAY"}},
+  {{"departureDate": "03MAY", "returnDate": "10MAY"}},
+  {{"departureDate": "04MAY", "returnDate": "11MAY"}},
+  {{"departureDate": "05MAY", "returnDate": "12MAY"}},
+  {{"departureDate": "06MAY", "returnDate": "13MAY"}},
+  {{"departureDate": "07MAY", "returnDate": "14MAY"}},
+  {{"departureDate": "08MAY", "returnDate": "15MAY"}},
+  {{"departureDate": "09MAY", "returnDate": "16MAY"}},
+  {{"departureDate": "10MAY", "returnDate": "17MAY"}},
+  {{"departureDate": "11MAY", "returnDate": "18MAY"}},
+  {{"departureDate": "12MAY", "returnDate": "19MAY"}},
+  {{"departureDate": "13MAY", "returnDate": "20MAY"}},
+  {{"departureDate": "14MAY", "returnDate": "21MAY"}},
+  {{"departureDate": "15MAY", "returnDate": "22MAY"}},
+  {{"departureDate": "16MAY", "returnDate": "23MAY"}},
+  {{"departureDate": "17MAY", "returnDate": "24MAY"}},
+  {{"departureDate": "18MAY", "returnDate": "25MAY"}},
+  {{"departureDate": "19MAY", "returnDate": "26MAY"}},
+  {{"departureDate": "20MAY", "returnDate": "27MAY"}},
+  {{"departureDate": "21MAY", "returnDate": "28MAY"}},
+  {{"departureDate": "22MAY", "returnDate": "29MAY"}},
+  {{"departureDate": "23MAY", "returnDate": "30MAY"}},
+  {{"departureDate": "24MAY", "returnDate": "31MAY"}},
+  {{"departureDate": "25MAY", "returnDate": "01JUN"}},
+  {{"departureDate": "26MAY", "returnDate": "02JUN"}},
+  {{"departureDate": "27MAY", "returnDate": "03JUN"}},
+  {{"departureDate": "28MAY", "returnDate": "04JUN"}},
+  {{"departureDate": "29MAY", "returnDate": "05JUN"}},
+  {{"departureDate": "30MAY", "returnDate": "06JUN"}},
+  {{"departureDate": "31MAY", "returnDate": "07JUN"}}
 ]
 
 
-Ejemplo 9:
-Mensaje: “cualquier fecha de enero 5 noches a cancun”
-Respuesta:
+Mensaje: "me quiero ir 5 noches en agosto a cancun"
+
+JSON de salida (SOLO JSON):
 [
-  {{"departureDate": "03JAN", "returnDate": "08JAN"}},
-  {{"departureDate": "08JAN", "returnDate": "13JAN"}},
-  {{"departureDate": "13JAN", "returnDate": "18JAN"}},
-  {{"departureDate": "18JAN", "returnDate": "23JAN"}},
-  {{"departureDate": "23JAN", "returnDate": "28JAN"}}
+  {{"departureDate": "01AUG", "returnDate": "06AUG"}},
+  {{"departureDate": "02AUG", "returnDate": "07AUG"}},
+  {{"departureDate": "03AUG", "returnDate": "08AUG"}},
+  {{"departureDate": "04AUG", "returnDate": "09AUG"}},
+  {{"departureDate": "05AUG", "returnDate": "10AUG"}},
+  {{"departureDate": "06AUG", "returnDate": "11AUG"}},
+  {{"departureDate": "07AUG", "returnDate": "12AUG"}},
+  {{"departureDate": "08AUG", "returnDate": "13AUG"}},
+  {{"departureDate": "09AUG", "returnDate": "14AUG"}},
+  {{"departureDate": "10AUG", "returnDate": "15AUG"}},
+  {{"departureDate": "11AUG", "returnDate": "16AUG"}},
+  {{"departureDate": "12AUG", "returnDate": "17AUG"}},
+  {{"departureDate": "13AUG", "returnDate": "18AUG"}},
+  {{"departureDate": "14AUG", "returnDate": "19AUG"}},
+  {{"departureDate": "15AUG", "returnDate": "20AUG"}},
+  {{"departureDate": "16AUG", "returnDate": "21AUG"}},
+  {{"departureDate": "17AUG", "returnDate": "22AUG"}},
+  {{"departureDate": "18AUG", "returnDate": "23AUG"}},
+  {{"departureDate": "19AUG", "returnDate": "24AUG"}},
+  {{"departureDate": "20AUG", "returnDate": "25AUG"}},
+  {{"departureDate": "21AUG", "returnDate": "26AUG"}},
+  {{"departureDate": "22AUG", "returnDate": "27AUG"}},
+  {{"departureDate": "23AUG", "returnDate": "28AUG"}},
+  {{"departureDate": "24AUG", "returnDate": "29AUG"}},
+  {{"departureDate": "25AUG", "returnDate": "30AUG"}},
+  {{"departureDate": "26AUG", "returnDate": "31AUG"}},
+  {{"departureDate": "27AUG", "returnDate": "01SEP"}},
+  {{"departureDate": "28AUG", "returnDate": "02SEP"}},
+  {{"departureDate": "29AUG", "returnDate": "03SEP"}},
+  {{"departureDate": "30AUG", "returnDate": "04SEP"}},
+  {{"departureDate": "31AUG", "returnDate": "05SEP"}}
 ]
+REGLAS DE CÁLCULO Y FORMATO ESTRICTO:
+Extracción de duración: Busca un número seguido de "noches", "días", "semana" (7 días), o "quincena" (15 días).
 
-Ejemplo 10:
-Mensaje: “cualquier fecha de septiembre, 7 noches”
-Respuesta:
-[
-  {{"departureDate": "03SEP", "returnDate": "10SEP"}},
-  {{"departureDate": "08SEP", "returnDate": "15SEP"}},
-  {{"departureDate": "13SEP", "returnDate": "20SEP"}},
-  {{"departureDate": "18SEP", "returnDate": "25SEP"}},
-  {{"departureDate": "23SEP", "returnDate": "30SEP"}}
-]
+SOLO SI no hay duración explícita Y no hay fecha de regreso fija, asume por defecto: 7 días.
 
-Ejemplo 11:
-Mensaje: “nos queremos ir a fines de agosto, 10 noches”
-Respuesta:
-[
-  {{"departureDate": "20AUG", "returnDate": "30AUG"}},
-  {{"departureDate": "23AUG", "returnDate": "02SEP"}},
-  {{"departureDate": "25AUG", "returnDate": "04SEP"}},
-  {{"departureDate": "27AUG", "returnDate": "06SEP"}},
-  {{"departureDate": "29AUG", "returnDate": "08SEP"}}
-]
----
+Cálculo de fechas: Calcula returnDate sumando la duración a departureDate. Maneja correctamente los cruces de mes.
 
-### NOTAS IMPORTANTES:  
-- "una semana" = 7 días  
-- "7 noches" = 7 días
-- "10 noches" = 10 días
-- "dos semanas" = 14 días  
-- Si hay varias fechas de salida y un rango de regreso, generá la combinación completa.  
-- Si la duración no está explícita y no hay fecha de regreso, asumí 7 días.  
-- Si la fecha de regreso es anterior a la salida, descartá esa combinación.  
-- No agregar texto extra, solo el array JSON válido con doble llave en los objetos.
+Formato de Fechas (DDMMM): DD (día con dos dígitos, ej. "01", "15"), MMM (mes abreviado en MAYÚSCULAS).
 
----
+Meses: JAN, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DIC.
 
-### MENSAJE A PROCESAR:
+Días por mes (FIJOS): ENE: 31, FEB: 28, MAR: 31, ABR: 30, MAY: 31, JUN: 30, JUL: 31, AGO: 31, SEP: 30, OCT: 31, NOV: 30, DIC: 31.
 
-"{mensaje}"
+GENERACIÓN EXACTA:
 
+NUNCA devuelvas un array vacío. Siempre genera al menos una opción.
 
-    """
+NO inventes meses o fechas. El mensaje debe contener un mes.
+
+La respuesta debe ser SOLO EL ARRAY JSON PURO. NI UNA LETRA MÁS.
+
+MENSAJE A PROCESAR:
+{mensaje_procesado}
+"""
+    # La carga de un archivo JSON 'ejemplos_fechas_completos' no es necesaria aquí,
+    # ya que la IA no lo "lee" como un archivo. Su conocimiento se basa en los ejemplos
+    # y reglas que le proporcionamos directamente en el prompt.
+    # El archivo json_fechas_completos.json es útil para TI como referencia o para un futuro
+    # pre-entrenamiento si el modelo lo permite, pero no para este prompt directo.
 
     response = ollama.chat(
-        model="llama3.2",
+        model="llama3.2", # Asegúrate de que este modelo sea el que mejor responda a las instrucciones.
         messages=[{"role": "user", "content": prompt}],
-        options={"temperature": 0}
+        options={"temperature": 0} # Temperatura en 0 para respuestas deterministas y consistentes.
     )
     content = response["message"]["content"]
 
     try:
-        limpio = limpiar_json(content)  # asumí que limpia el string para obtener JSON válido
-        fechas = json.loads(limpio)     # antes usabas json.loads(content) directamente, que fallaba
+        # Asegúrate de que limpiar_json sea robusto y maneje casos donde la IA podría
+        # añadir texto antes o después del JSON, o generar un JSON malformado.
+        limpio = limpiar_json(content)
+        fechas = json.loads(limpio)
         if not fechas:
-            raise ValueError("Array vacío")
+            raise ValueError("Array JSON vacío o inesperado después de limpieza.")
+    except json.JSONDecodeError as e:
+        print(f"Error al decodificar JSON de la respuesta de la IA: {e}")
+        print(f"Contenido problemático recibido: {content}")
+        fechas = []  # Devolver una lista vacía en caso de error de parseo.
+    except ValueError as e: # Captura el error de array vacío
+        print(f"Error de validación del JSON: {e}")
+        print(f"Contenido recibido: {content}")
+        fechas = []
     except Exception as e:
-        print(f"Error parseando JSON: {e}")
-        fechas = []  # devolver un array vacío o un fallback válido
+        print(f"Ocurrió un error inesperado: {e}")
+        print(f"Contenido recibido: {content}")
+        fechas = []
     return fechas
-
+# NOTA: La función 'limpiar_json' debe estar definida en algún lugar y ser capaz de
+# extraer el JSON puro de la cadena 'content' que devuelve la IA.
+# Un ejemplo básico de limpiar_json podría ser:
+# def limpiar_json(text):
+#     # Busca el primer '[' y el último ']' para intentar extraer el JSON
+#     start = text.find('[')
+#     end = text.rfind(']')
+#     if start != -1 and end != -1 and start < end:
+#         return text[start : end + 1]
+#     return "[]" # Si no encuentra un JSON válido, retorna un array vacío.
 def generar_todo_lo_demas(mensaje):
        
     prompt2= f"""
@@ -318,18 +265,13 @@ Sos una IA que recibe mensajes en español y debe devolver solo un único objeto
 Reglas:
 
 IMPORTANTE:  
-- Siempre cuenta como 1 adulto la persona que envía el mensaje, aunque no lo diga explícitamente.  
 - Cada vez que se mencione "mi esposa", "mi marido", "mi pareja", "mi mujer", etc., sumá 1 adulto adicional.  
-- Nunca devolvés valores cero para adultos si el mensaje indica "me quiero ir" o frases similares; al menos 1 adulto siempre debe estar presente.  
 - No devuelvas arrays ni listas: SOLO un único objeto JSON con los campos requeridos.  
-- Si no detectás destino, origenVuelta queda vacío, pero no dejes campos vacíos ni con ceros que no correspondan a la lógica.  
-- Inferí la cantidad de pasajeros con sentido común, incluso sin números explícitos.
+- Si se mencionan “mis hijos”, “los chicos”, “mis nenes” y **no hay edad explícita**, asumí que son `children` (entre 3 y 11 años).
+- Nunca asumas que un hijo es adulto a menos que se indique su edad (mayor a 12) o se diga explícitamente que es adolescente o mayor.
 
-- La persona que escribe viaja (1 adulto) salvo que se indique otra cosa.  
 - Frases como "mi esposa", "mi marido", "mi pareja", "mi amigo","mi mujer", etc., suman 1 adulto cada una.  
 - Menciones de “mi hijo”, “mis hijos”, “los nenes”, “mi bebé” indican niños o infantes según contexto.  
-- Inferí cantidades aunque no haya números exactos, con sentido común.  
-- Si no detectás ciudad destino o pasajeros, usar valores por defecto (1 adulto y origenVuelta vacío).  
 - Completar todos los campos obligatorios, ningún campo vacío o nulo.  
 - Somos 2 personas, son 2 adultos. Siempre.
 =======================
@@ -342,7 +284,6 @@ IMPORTANTE:
 - infants (menores de 2 años)
 
 ✈️ CLAVES:
-- Siempre asumí que la persona que escribe viaja → suma 1 adulto, **aunque no lo diga explícitamente**.
 - Mencioná como adultos a cada persona nombrada con palabras como: "mi mamá", "mi papá", "mi esposa", "mi pareja", "mi amigo", "mi hijo de 20", etc.
 - Detectá edades explícitas:  
   - Si dice “tiene 23 años”, o “mi hijo de 14” → contalo como **adulto**
@@ -355,12 +296,17 @@ IMPORTANTE:
 - Cuando el mensaje dice "viajo a" o "quiero ir a" tenes que contar a la persona que escribio el mensaje como un adulto
 
 IMPORTANTE:  
-- Siempre cuenta como 1 adulto la persona que envía el mensaje, aunque no lo diga explícitamente.  
 - Cada vez que se mencione "mi esposa", "mi marido", "mi pareja", "mi mujer", etc., sumá 1 adulto adicional.  
 - Nunca devolvés valores cero para adultos si el mensaje indica "me quiero ir" o frases similares; al menos 1 adulto siempre debe estar presente.  
 - No devuelvas arrays ni listas: SOLO un único objeto JSON con los campos requeridos.  
-- Si no detectás destino, origenVuelta queda vacío, pero no dejes campos vacíos ni con ceros que no correspondan a la lógica.  
-- Inferí la cantidad de pasajeros con sentido común, incluso sin números explícitos.
+- Si se mencionan “mis hijos”, “los chicos”, “mis nenes” y **no hay edad explícita**, asumí que son `children` (entre 3 y 11 años).
+- Nunca asumas que un hijo es adulto a menos que se indique su edad (mayor a 12) o se diga explícitamente que es adolescente o mayor.
+- 🔒 Si no se especifica edad, asumí por defecto que los “hijos”, “nenes”, “chicos”, etc. tienen entre 3 y 11 años → contalos como children.
+❌ Nunca interpretes que un hijo es adult a menos que:
+
+se indique una edad mayor a 12
+
+se diga explícitamente que es adolescente, mayor o tiene más de 12 años
 
 👤 Ejemplos:
 
@@ -372,7 +318,7 @@ IMPORTANTE:
 | "viajamos mi hija de 14 y yo"                                      | 2      | 0        | 0       |
 | "voy con mi esposa, mi hijo de 2 años y el bebé"                   | 2      | 1        | 1       |
 | "me voy solo"                                                      | 1      | 0        | 0       |
-| "me quiero ir"                                                     | 1      | 0        | 0       |
+| "me quiero ir ..."                                                 | 1      | 0        | 0       |
 | "me quiero ir con mi esposa"                                       | 2      | 0        | 0       |
 | "me quiero ir con mi hijo"                                         | 1      | 1        | 0       |
 | "me quiero ir con mi hijo de 22"                                   | 2      | 0        | 0       |
@@ -411,12 +357,12 @@ IMPORTANTE:
 | "yo, mi esposa y nuestra hija recién nacida"                       | 2      | 0        | 1       |
 ----------------------------------------------------------------------------------------------------
 Ejemplo 1:  
-Mensaje: "me quiero ir con mi esposa 7 noches en septiembre a cancun"  
+Mensaje: "me quiero ir con mi esposa y mis 2 hijos 7 noches en septiembre a cancun"  
 Respuesta:  
 {{  
   "origenVuelta": "cancun",  
   "adults": 2,  
-  "children": 0,  
+  "children": 2,  
   "infants": 0  
 }}
 

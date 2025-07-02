@@ -4,6 +4,7 @@ import { generarJsonDesdeMensaje } from "../../../IA/IAVuelo.js";
 import { generarArrayMultibusqueda } from "../../../IA/IAMultibusqueda";
 import { generarRespuesta } from "../../../IA/IAGeneracionRespuesta";
 import { getContextConSesionValida } from "@/funciones/context";
+import { Browser, BrowserContext } from "playwright";
 
 type VueloFinal = {
   precioFinal: string;
@@ -27,15 +28,18 @@ type VueloFinal = {
   adults: number;
   children: number;
   infants: number;
-};
+};// tu-ruta-api/route.ts
+// ... tus imports
+
 export async function POST(req: Request) {
   const params = await req.json();
   const mensajeCliente = params.mensaje;
   const objetoViaje = [];
-  console.log("Mensaje del cliente:", mensajeCliente);
-  if (params.multibusqueda == false) {
-    objetoViaje.push(await generarJsonDesdeMensaje(mensajeCliente))
 
+  console.log("Mensaje del cliente:", mensajeCliente);
+
+  if (params.multibusqueda == false) {
+    objetoViaje.push(await generarJsonDesdeMensaje(mensajeCliente));
   } else {
     const array = await generarArrayMultibusqueda(mensajeCliente);
     if (Array.isArray(array)) {
@@ -44,73 +48,54 @@ export async function POST(req: Request) {
       objetoViaje.push(array);
     }
   }
+  let browser: Browser | undefined; // Declara el navegador fuera del try para cerrarlo en finally
+  let context: BrowserContext | undefined;
 
-  // const respuestas: VueloFinal[] = [];
+  try {
+    // Obtén el contexto una sola vez, que ya viene con la sesión válida
+    const result = await getContextConSesionValida({
+      mail: objetoViaje[0].mail, // Asume que el mail y password están en el primer objeto de viaje
+      password: objetoViaje[0].password,
+    });
+    browser = result.browser;
+    context = result.context;
 
-  // const scrapingPromises =  objetoViaje.map(async (vuelo) =>
-  //   { 
-  //     vuelo = { ...vuelo, carryon: params.carryon, bodega: params.bodega }
-  //     return await scrapingVuelos(vuelo)
-  //   });
-  // const scrapingResults = await Promise.all(scrapingPromises);
-try {
-  const respuestas: VueloFinal[] = [];
+    const respuestas: VueloFinal[] = [];
 
-  // Verificás UNA SOLA VEZ si está logueado antes de entrar al for
-  console.log("🔍 Verificando estado de sesión...",objetoViaje[0].mail, objetoViaje[0].password);
-  const { estaLogueado } = await getContextConSesionValida({
-    mail: objetoViaje[0].mail,
-    password: objetoViaje[0].password,
-  });
-
-  console.log("Estado de sesión:", estaLogueado ? "Iniciada" : "No iniciada");
-  if (!estaLogueado) {
-    // ⏳ Mandar scraping cada 4 segundos, pero sin esperar que terminen
-    const scrapingPromises = objetoViaje.map((vueloOriginal, i) => {
-      return new Promise<VueloFinal>((resolve) => {
-        setTimeout(async () => {
-          const vuelo = { ...vueloOriginal, carryon: params.carryon, bodega: params.bodega };
-          console.log(`🚀 Lanzando scraping ${i + 1}...`);
-          const resultado = await scrapingVuelos(vuelo);
-          if (resultado === undefined) {
-            // You can handle this as you prefer: throw, skip, or provide a default
-            throw new Error("scrapingVuelos returned undefined");
-          }
-          resolve(resultado);
-        }, i * 10000); // cada 4 segundos
-      });
+    // Ahora, todos los scrapings pueden usar el mismo contexto logueado
+    // Y se ejecutarán en paralelo gracias a Promise.all
+    const scrapingPromises = objetoViaje.map((vueloOriginal) => {
+      const vuelo = {
+        ...vueloOriginal,
+        carryon: params.carryon,
+        bodega: params.bodega,
+        context, // Pasa el contexto ya logueado
+      };
+      // console.log("Vuelo a scrapear:", vuelo); // Esto puede generar mucho output, úsalo para debug
+      return scrapingVuelos(vuelo);
     });
 
     const scrapingResults = await Promise.all(scrapingPromises);
     respuestas.push(...scrapingResults.filter((r): r is VueloFinal => r !== undefined));
-  } else {
-    // 🚀 Sesión ya iniciada → todos los scrapings en paralelo
-    const scrapingPromises = objetoViaje.map(async (vuelo) => {
-      vuelo = { ...vuelo, carryon: params.carryon, bodega: params.bodega };
-      return await scrapingVuelos(vuelo);
-    });
 
-    const scrapingResults = await Promise.all(scrapingPromises);
-    respuestas.push(...scrapingResults.filter((r): r is VueloFinal => r !== undefined));
+    const jsonData = JSON.stringify(respuestas);
+    // console.log("OBJETO VIAJE", objetoViaje); // Comenta si genera mucho output
+    // console.log(respuestas, " OBJETO RESPUESTA"); // Comenta si genera mucho output
+    const response = await generarRespuesta(jsonData);
+
+    return NextResponse.json({ ok: true, result: response, status: 200 });
+
+  } catch (error) {
+    console.error("❌ Error general inesperado en la ruta POST:", error);
+    return NextResponse.json({
+      ok: false,
+      result: "Ocurrió un error inesperado durante la ejecución del scraping.",
+      detalle: error instanceof Error ? error.message : String(error) // Asegurarse de que el error sea string
+    }, { status: 500 });
+  } finally {
+    if (browser) {
+      console.log("Cerrando el navegador.");
+      await browser.close(); // Cierra el navegador al finalizar todas las operaciones
+    }
   }
-
-  // Filtrás los undefined o errores si es necesario
-  // const respuesta =  scrapingResults.filter((r) => r !== undefined);
-
-  // respuestas.push(...respuesta); 
-
-  const jsonData = JSON.stringify(respuestas);
-  const response = await generarRespuesta(jsonData)
-  console.log(response, " respuestas")
-  // return NextResponse.json({ result: response });
-    return NextResponse.json({ ok: true, result: response,  status: 200 });
-
-} catch (error) {
-  console.error("❌ Error general inesperado:", error);
-  return NextResponse.json({
-    ok: false,
-    result: "Ocurrió un error inesperado durante la ejecución del scraping.",
-    detalle: error instanceof Error ? error.message : error
-  },{status: 500});
-}
 }

@@ -17,9 +17,7 @@ export default async function HorarioSalidaIda({
 
     const anchoSlider = box.width;
 
-    console.log("Inicio de hora ida ", inicioHoraIda)
     const inicioX = convertirHoraAPixeles(inicioHoraIda, anchoSlider);
-    console.log("Inicio de hora vuelta ", finHoraIda)
     const finX = convertirHoraAPixeles(finHoraIda, anchoSlider);
 
     // 3. Obtener los handles

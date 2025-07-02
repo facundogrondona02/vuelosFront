@@ -9,7 +9,6 @@ export default async function DuracionVueloIda({
   horaDeseada: string
 }) {
 
-  console.log("DuracionVueloIda: Ajustando duración de vuelo ida a:", horaDeseada);
   // 1. Localizar el slider
   const sliderVueloIda = page.locator('.input-slider').nth(2); 
   const boxVueloIda = await sliderVueloIda.boundingBox();
@@ -61,8 +60,6 @@ export default async function DuracionVueloIda({
 
   const handleActualX = boxHandleDerecho.x + boxHandleDerecho.width / 2;
   const handleY = boxHandleDerecho.y + boxHandleDerecho.height / 2;
-  console.log(`Posición actual del handle derecho: X=${handleActualX}, Y=${handleY}`);
-  console.log(`Destino del handle derecho: X=${destinoX}, Y=${handleY}`);
   // 6. Mover el handle derecho hasta la posición deseada
   await endHandleVueloIda.hover();
   await page.mouse.move(handleActualX, handleY);

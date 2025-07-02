@@ -4,7 +4,6 @@ export default function convertirHoraAPixeles(hora: string, anchoSlider: number)
 
   while (intentos < maxIntentos) {
     try {
-      console.log("hora dentro de convertir  ", hora)
       const [h, m] = hora.split(':').map(Number);
       if (isNaN(h) || isNaN(m)) throw new Error('Formato inválido de hora');
 

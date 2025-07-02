@@ -1,7 +1,6 @@
 import { Page } from "@playwright/test";
 
 export async function hacerLogin(page: Page, mail: string, password: string): Promise<void> {
-  console.log("🔐 Iniciando login...");
 
   try {
     await page.goto('https://aereos.sudameria.com/Login', { waitUntil: "domcontentloaded" });
@@ -27,7 +26,6 @@ export async function hacerLogin(page: Page, mail: string, password: string): Pr
     // Guardar sesión solo si llegó hasta acá sin tirar error
     await page.context().storageState({ path: 'session.json' });
 
-    console.log("✅ Login exitoso y sesión guardada");
   } catch (error) {
     console.error("❌ Error durante el login:", error);
     throw error;
