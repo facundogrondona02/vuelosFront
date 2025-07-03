@@ -77,10 +77,11 @@ export async function POST(req: Request) {
 
     const scrapingResults = await Promise.all(scrapingPromises);
     respuestas.push(...scrapingResults.filter((r): r is VueloFinal => r !== undefined));
-
+    console.log("Resultados de scraping:", respuestas); // Comenta si genera mucho output
     const jsonData = JSON.stringify(respuestas);
     // console.log("OBJETO VIAJE", objetoViaje); // Comenta si genera mucho output
     // console.log(respuestas, " OBJETO RESPUESTA"); // Comenta si genera mucho output
+
     const response = await generarRespuesta(jsonData);
 
     return NextResponse.json({ ok: true, result: response, status: 200 });
