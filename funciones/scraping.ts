@@ -1,18 +1,17 @@
-// scraping.js
-import { console } from "inspector";
-import DuracionVueloIda from "../componentes/DuracionVueloIda";
-import { ajustarSliderVueloVuelta } from "../componentes/DuracionVueloVuelta";
-import HorarioSalidaIda from "../componentes/HorarioSalidaIda";
-import HorarioSalidaVuelta from "../componentes/HorarioSalidaVuelta";
-import { hacerLogin } from "./hacerLogin";
-import recorroListaVuelos from "./recorroListaVuelos";
+import recorroListaVuelos from './recorroListaVuelos';
+import DuracionVueloIda from '../componentes/DuracionVueloIda';
+import { ajustarSliderVueloVuelta } from '../componentes/DuracionVueloVuelta';
+import HorarioSalidaIda from '../componentes/HorarioSalidaIda';
+import HorarioSalidaVuelta from '../componentes/HorarioSalidaVuelta';
+import type { BrowserContext } from 'playwright';
 
+// ... (tus interfaces y tipos)
 
 interface ScrapingVuelosParams {
-  mail: string,
-  password: string,
-  originDeparture: string;
-  originReturn: string;
+  mail: string;
+  password: string;
+  origenIda: string;
+  origenVuelta: string;
   departureDate: string;
   returnDate: string;
   adults: number;
@@ -26,25 +25,20 @@ interface ScrapingVuelosParams {
   horarioVueltaHasta: string;
   maxDuracionIda: string;
   maxDuracionVuelta: string;
-  // ... otros params que necesites
+  carryon: boolean;
+  bodega: boolean;
 }
 
-import { chromium, Page } from "playwright"; // Import the correct Page type from Playwright
-
-export async function scrapingVuelos(
-  // page: Page,
-  params: ScrapingVuelosParams
-): Promise<string | undefined> {
+export async function scrapingVuelos(params: ScrapingVuelosParams & { context: BrowserContext }): Promise<VueloFinal | undefined> {
   const {
-    mail,
-    password,
-    originDeparture,
-    originReturn,
+    origenIda,
+    origenVuelta,
     departureDate,
     returnDate,
     adults,
     children,
     infants,
+    stops,
     checkedBaggage,
     horarioIdaEntre,
     horarioIdaHasta,
@@ -52,115 +46,144 @@ export async function scrapingVuelos(
     horarioVueltaHasta,
     maxDuracionIda,
     maxDuracionVuelta,
-    // ... otros params que necesites
+    carryon,
+    bodega,
+    context,
   } = params;
-  const browser = await chromium.launch({ headless: false }); 
 
-  // 2. Abrís una nueva pestaña (page)
-  const page: Page = await browser.newPage();
+  // 1. Crear una NUEVA PÁGINA para cada operación de scraping
+  const page = await context.newPage();
+
   try {
-  console.log("Iniciando scraping de vuelos con los siguientes parámetros:", params);
-  await hacerLogin(page, mail, password);
-  await page.waitForLoadState('networkidle');
+    console.log(`Iniciando scraping para ${origenIda} a ${origenVuelta} el ${departureDate}.`);
+
+    // 2. Navegar directamente a la URL de búsqueda (o de inicio) y esperar carga completa
+    // Esto asegura que cada página comience desde un estado limpio y conocido.
+    await page.goto("https://aereos.sudameria.com/search", { waitUntil: "networkidle" });
+    // Espera adicional para que los elementos iniciales de la página de búsqueda estén presentes
     // === ORIGEN Y DESTINO ===
-    const origenInput =  page.getByRole('textbox', { name: 'BUE' });
+    await page.waitForSelector('input[placeholder="24SEP"]', { state: 'visible', timeout: 15000 }); // Aumentamos el timeout
+    await page.waitForLoadState('domcontentloaded'); // Asegura que el DOM está listo
+    await page.waitForTimeout(1000); // Pequeña pau
+
+    const origenInput = page.getByRole('textbox', { name: 'BUE' });
     if (await origenInput.isVisible()) {
-      await origenInput.fill(originDeparture);
-      console.log("✔ Origen de salida llenado:", originDeparture);
+      await origenInput.fill(origenIda);
     }
 
-    const destinoInput =  page.getByRole('textbox', { name: 'MIA' });
+    const destinoInput = page.getByRole('textbox', { name: 'MIA' });
     if (await destinoInput.isVisible()) {
       await destinoInput.dblclick();
-      await destinoInput.fill(originReturn);
-      console.log("✔ Destino de regreso llenado:", originReturn);
-    }
-    // === FECHAS ===
-    const salidaInput =  page.locator(`//input[@placeholder='24SEP']`);
-    const regresoInput =  page.locator(`//input[@placeholder='10OCT']`);
-    if (await salidaInput.isVisible()) {
-      await salidaInput.fill(departureDate);
-      console.log("✔ Fecha de salida completada:", departureDate);
-    }
-    if (await regresoInput.isVisible()) {
-      await regresoInput.fill(returnDate);
-      console.log("✔ Fecha de regreso completada:", returnDate);
+      await destinoInput.fill(origenVuelta);
     }
 
-    // === PASAJEROS ===
-    const adultosInput =  page.locator("//input[@placeholder='1' and contains(@class,'input search-input')]");
-    const ninosInput =  page.locator("//input[@placeholder='0' and contains(@class,'input search-input')]").nth(0);
-    const infantesInput =  page.locator("//input[@placeholder='0' and contains(@class,'input search-input')]").nth(1);
-    console.log("adultos ",adults)
+    // === FECHAS ===
+    // --- INTERACCIÓN CON FECHAS (MUY CRÍTICO) ---
+    // Selector para el campo de salida (puedes verificar si es '24SEP' o 'DDMMM')
+    const salidaInput = page.getByPlaceholder('24SEP'); // Este placeholder puede cambiar, verifica el HTML
+    await salidaInput.waitFor({ state: 'visible', timeout: 10000 });
+    await salidaInput.click(); // Click para activar el input y posible calendario/selector
+    await salidaInput.fill(departureDate);
+    await page.keyboard.press('Escape'); // Intenta cerrar cualquier calendario emergente que pueda interferir
+    await page.waitForTimeout(1000); // Espera que el input de fecha se asiente
+
+    const regresoInput = page.getByPlaceholder('10OCT'); // Este placeholder puede cambiar
+    await regresoInput.waitFor({ state: 'visible', timeout: 10000 });
+    await regresoInput.click();
+    await regresoInput.fill(returnDate);
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(1000);
+    //*[@id="frm"]/div[1]/div[4]/div //*[@id="frm"]/div[1]/div[4]/div/div[1]/div[1]/span[1]/input[1]    //*[@id="meRAIlqldU"]/span/button   meRAIlqldU
+    //     // === PASAJEROS ===   
+    const adultosInput = page.locator("//input[@placeholder='1' and contains(@class,'input search-input')]");
+    const ninosInput = page.locator("//input[@placeholder='0' and contains(@class,'input search-input')]").nth(0);
+    const infantesInput = page.locator("//input[@placeholder='0' and contains(@class,'input search-input')]").nth(1);
+
     await adultosInput.fill(String(adults));
-    console.log("✔ Adultos:", adults);
 
     await ninosInput.fill(String(children));
-    console.log("✔ Niños:", children);
 
     await infantesInput.fill(String(infants));
-    console.log("✔ Infantes:", infants);
 
     // === BÚSQUEDA AVANZADA ===
     await page.locator("//a[@title='Búsqueda avanzada (Ctrl+Shift+A)' and contains(@class,'link-btn')]").click();
-    console.log("✔ Se abrió la búsqueda avanzada");
 
     await page.locator("//*[@id='app']/div[3]/div[1]/div[2]/div[1]/div/div[4]/div").click();
-    console.log("✔ Abierto menú de moneda");
 
     await page.locator("div.input-cont[data-bind*='allowedAlternateCurrencyCodes'] select").selectOption('USD');
-    console.log("✔ Seleccionada moneda USD");
-
     await page.locator('//*[@id="app"]/div[3]/div[1]/div[2]/div[2]/button[2]').click();
-    console.log("✔ Cerrada búsqueda avanzada");
 
     // === ENVIAR BÚSQUEDA ===
     await page.locator('#lnkSubmit').click();
-    console.log("✔ Click en Buscar vuelos. Esperando resultados...");
 
     // === FILTROS DE ESCALAS ===
+
     await page.locator('//*[@id="content"]/div/div[1]/div/div[2]/div[1]/button').click();
-    console.log("✔ Filtros abiertos");
 
     const dropdown = page.locator('div.rz-dropdown').filter({ hasText: 'Seleccionar' }).first();
     await dropdown.click();
-    console.log("✔ Desplegable de escalas abierto");
 
-    await page.getByRole('option').filter({ hasText: params.stops }).click();
-    console.log("✔ Filtro de escalas aplicado:", params.stops);
+    await page.getByRole('option').filter({ hasText: stops }).click();
 
     if (checkedBaggage) {
       await page.locator('label[for="Baggage0"]').click();
-      console.log("✔ Filtro de equipaje aplicado");
     }
 
     // === HORARIOS SALIDA Y VUELTA ===
     await HorarioSalidaIda({ page, inicioHoraIda: horarioIdaEntre, finHoraIda: horarioIdaHasta });
-    console.log(`✔ Horario de salida ida entre ${horarioIdaEntre} y ${horarioIdaHasta}`);
 
     await HorarioSalidaVuelta({ page, inicioHoraVuelta: horarioVueltaEntre, finHoraVuelta: horarioVueltaHasta });
-    console.log(`✔ Horario de salida vuelta entre ${horarioVueltaEntre} y ${horarioVueltaHasta}`);
 
     // === DURACIÓN MAXIMA VUELOS ===
-    console.log("⌛ Ajustando duración máxima de vuelo ida a:", maxDuracionIda);
     await DuracionVueloIda({ page, horaDeseada: maxDuracionIda });
 
-    console.log("⌛ Ajustando duración máxima de vuelo vuelta a:", maxDuracionVuelta);
     await ajustarSliderVueloVuelta({ page, horaDeseada: maxDuracionVuelta });
-    
+
+    // === EQUIPAJE CARRYON ===
+    if (carryon) {
+      // await page.locator('div.rz-chkbox-box').nth(15).click();
+      // await page.locator('div.rz-chkbox-box').nth(17).click();
+      const filas = await page.locator('div.rz-display-flex').all();
+
+      for (const fila of filas) {
+        const label = fila.locator('label');
+
+        const textoLabel = await label.textContent();
+        if (textoLabel?.trim() === 'Con CarryOn') {
+          // Ir al hermano: <div class="rz-chkbox-box"> dentro de <div class="rz-chkbox">
+          const box = fila.locator('.rz-chkbox-box');
+          await box.click();
+        }
+      }
+    }
+
+    // === EQUIPAJE DE BODEGA ===
+    if (bodega) {
+      const filas = await page.locator('div.rz-display-flex').all();
+
+      for (const fila of filas) {
+        const label = fila.locator('label');
+
+        const textoLabel = await label.textContent();
+        if (textoLabel?.trim() === 'Con equipaje en bodega') {
+          // Ir al hermano: <div class="rz-chkbox-box"> dentro de <div class="rz-chkbox">
+          const box = fila.locator('.rz-chkbox-box');
+          await box.click();
+        }
+      }
+    }
+
+
     // === APLICAR FILTROS ===
     await page.locator('//*[@id="app"]/div[3]/div[1]/div[2]/div[2]/button[3]').click();
-    console.log("✔ Filtros aplicados");
 
-    // === VERIFICACIÓN DE RESULTADOS ===
+
+    // === ESPERAR RESULTADOS ===
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(2000);
+    // await page.waitForTimeout(3000);
 
     const tablaCount = await page.locator('//*[@id="content"]/div/div[2]/table/tbody').count();
     const isVisible = await page.locator('//*[@id="content"]/div/div[2]/table/tbody').first().isVisible();
-
-    console.log("✔ Cantidad de tbodys en la tabla de resultados:", tablaCount);
-    console.log("✔ Primer tbody visible?:", isVisible);
 
     if (tablaCount === 0 || !isVisible) {
       console.warn("⚠ No se encontraron resultados visibles.");
@@ -168,13 +191,28 @@ export async function scrapingVuelos(
     }
 
     // === RECORRER LISTA DE VUELOS ===
-  const res =  await recorroListaVuelos(page);
-    console.log("✅ Búsqueda finalizada correctamente");
+    // await page.waitForTimeout(3000);
+
+    const res = await recorroListaVuelos(page);
+
+    if (typeof res === "string") {
+      if (res === "No hay ningun vuelo disponible con estas opciones") {
+        console.warn("⚠ No hay ningún vuelo disponible con estas opciones.");
+        return undefined;
+      }
+    } else {
+      res.adults = adults;
+      res.children = children;
+      res.infants = infants;
+    }
+
+
     return res;
   } catch (error) {
-    console.error("❌ Error durante la búsqueda:", error);
+    console.error(`❌ Error durante la búsqueda para ${origenIda} a ${origenVuelta} el ${departureDate}:`, error);
+    return undefined;
+  } finally {
+    // 4. Cerrar la página INDIVIDUALMENTE al finalizar cada scrapingVuelos
+    await page.close();
   }
 }
-
-
-  // Podés sacar el page.pause() si no querés pausar

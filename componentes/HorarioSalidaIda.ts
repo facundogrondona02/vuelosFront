@@ -1,3 +1,4 @@
+import { Page } from "@playwright/test";
 import convertirHoraAPixeles from "../funciones/convertirHoraAPixeles";
 
 export default async function HorarioSalidaIda({
@@ -6,7 +7,7 @@ export default async function HorarioSalidaIda({
     finHoraIda
 
 }: {
-    page: any,
+    page: Page,
     inicioHoraIda: string,
     finHoraIda: string
 }) {
@@ -15,7 +16,6 @@ export default async function HorarioSalidaIda({
     if (!box) throw new Error("No se pudo encontrar el slider");
 
     const anchoSlider = box.width;
-
 
     const inicioX = convertirHoraAPixeles(inicioHoraIda, anchoSlider);
     const finX = convertirHoraAPixeles(finHoraIda, anchoSlider);

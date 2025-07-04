@@ -1,0 +1,26 @@
+[
+  {
+    "ciudad": "Miami",
+    "codigoIATA": "MIA"
+  },
+  {
+    "ciudad": "Cancun",
+    "codigoIATA": "CUN"
+  },
+  {
+    "ciudad": "Punta cana",
+    "codigoIATA": "PUJ"
+  },
+  {
+    "ciudad": "Santiago",
+    "codigoIATA": "SCL"
+  },
+  {
+    "ciudad": "Rio",
+    "codigoIATA": "RIO"
+  },
+  {
+    "ciudad": "Cuba",
+    "codigoIATA": "HAV"
+  }
+]

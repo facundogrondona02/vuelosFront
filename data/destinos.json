@@ -1,0 +1,68 @@
+[
+  {
+    "ciudad": "Miami",
+    "origenVuelta": "MIA",
+    "maxDuracionIda": "14:00",
+    "maxDuracionVuelta": "14:00",
+    "horarioIdaEntre": "00:01",
+    "horarioIdaHasta": "11:00",
+    "horarioVueltaEntre": "11:03",
+    "horarioVueltaHasta": "23:55",
+    "stops": "1 escala"
+  },
+  {
+    "ciudad": "Cancun",
+    "origenVuelta": "CUN",
+    "maxDuracionIda": "14:00",
+    "maxDuracionVuelta": "14:00",
+    "horarioIdaEntre": "00:01",
+    "horarioIdaHasta": "09:00",
+    "horarioVueltaEntre": "11:00",
+    "horarioVueltaHasta": "23:00",
+    "stops": "1 escala"
+  },
+  {
+    "ciudad": "Punta cana",
+    "origenVuelta": "PUJ",
+    "maxDuracionIda": "14:00",
+    "maxDuracionVuelta": "14:00",
+    "horarioIdaEntre": "00:00",
+    "horarioIdaHasta": "06:00",
+    "horarioVueltaEntre": "11:00",
+    "horarioVueltaHasta": "23:30",
+    "stops": "1 escala"
+  },
+  {
+    "ciudad": "Santiago",
+    "origenVuelta": "SCL",
+    "maxDuracionIda": "4:00",
+    "maxDuracionVuelta": "4:00",
+    "horarioIdaEntre": "03:00",
+    "horarioIdaHasta": "17:00",
+    "horarioVueltaEntre": "10:00",
+    "horarioVueltaHasta": "23:00",
+    "stops": "Directo"
+  },
+  {
+    "ciudad": "Rio",
+    "origenVuelta": "RIO",
+    "maxDuracionIda": "4:00",
+    "maxDuracionVuelta": "4:00",
+    "horarioIdaEntre": "01:00",
+    "horarioIdaHasta": "15:45",
+    "horarioVueltaEntre": "11:00",
+    "horarioVueltaHasta": "23:00",
+    "stops": "Directo"
+  },
+  {
+    "ciudad": "Cuba",
+    "origenVuelta": "HAV",
+    "maxDuracionIda": "14:00",
+    "maxDuracionVuelta": "14:00",
+    "horarioIdaEntre": "00:01",
+    "horarioIdaHasta": "23:59",
+    "horarioVueltaEntre": "11:00",
+    "horarioVueltaHasta": "23:59",
+    "stops": "1 escala"
+  }
+]

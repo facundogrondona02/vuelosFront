@@ -14,8 +14,11 @@
   },
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "langchain": "^0.3.27",
     "next": "15.3.3",
+    "ollama": "^0.5.16",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
@@ -24,7 +27,7 @@
     "@playwright/test": "^1.52.0",
     "@tailwindcss/postcss": "^4",
     "@types/express": "^4.17.17",
-    "@types/node": "^22.14.1",
+    "@types/node": "^22.16.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
