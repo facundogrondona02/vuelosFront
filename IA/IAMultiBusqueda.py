@@ -101,7 +101,7 @@ JSON de salida (SOLO JSON):
 ]
 CUALQUIER FECHA DEL MES CON DURACIÓN FIJA (PRIORIDAD BAJA):
 
-Si solo se menciona un mes general y una duración (ej. "7 noches en mayo", "5 días en diciembre", "3 días en enero",  "8 días en agosto", "11 dias en noviembre"), y no hay un rango de días de salida o fecha de regreso explícita.
+Si solo se menciona un mes general y una duración (ej. "7 noches en mayo", "5 días en diciembre", "3 noches en enero",  "8 días en agosto", "11 dias en noviembre"), y no hay un rango de días de salida o fecha de regreso explícita.
 
 DEBES generar TODAS LAS COMBINACIONES POSIBLES de salida, día por día, desde el día 01 del mes hasta el ÚLTIMO DÍA NATURAL de ese mes.
 
@@ -184,6 +184,43 @@ JSON de salida (SOLO JSON):
   {{"departureDate": "30AUG", "returnDate": "04SEP"}},
   {{"departureDate": "31AUG", "returnDate": "05SEP"}}
 ]
+Mensaje:"tenemos disponibilidad en Septiembre. Queremos viajar a Santiago 3 noches"
+JSON de salida (SOLO JSON):
+
+[
+  {{"departureDate": "01AUG", "returnDate": "04AUG"}},
+  {{"departureDate": "02AUG", "returnDate": "05AUG"}},
+  {{"departureDate": "03AUG", "returnDate": "06AUG"}},
+  {{"departureDate": "04AUG", "returnDate": "07AUG"}},
+  {{"departureDate": "05AUG", "returnDate": "08AUG"}},
+  {{"departureDate": "06AUG", "returnDate": "09AUG"}},
+  {{"departureDate": "07AUG", "returnDate": "10AUG"}},
+  {{"departureDate": "08AUG", "returnDate": "11AUG"}},
+  {{"departureDate": "09AUG", "returnDate": "12AUG"}},
+  {{"departureDate": "10AUG", "returnDate": "13AUG"}},
+  {{"departureDate": "11AUG", "returnDate": "14AUG"}},
+  {{"departureDate": "12AUG", "returnDate": "15AUG"}},
+  {{"departureDate": "13AUG", "returnDate": "16AUG"}},
+  {{"departureDate": "14AUG", "returnDate": "17AUG"}},
+  {{"departureDate": "15AUG", "returnDate": "18AUG"}},
+  {{"departureDate": "16AUG", "returnDate": "19AUG"}},
+  {{"departureDate": "17AUG", "returnDate": "20AUG"}},
+  {{"departureDate": "18AUG", "returnDate": "21AUG"}},
+  {{"departureDate": "19AUG", "returnDate": "22AUG"}},
+  {{"departureDate": "20AUG", "returnDate": "23AUG"}},
+  {{"departureDate": "21AUG", "returnDate": "24AUG"}},
+  {{"departureDate": "22AUG", "returnDate": "25AUG"}},
+  {{"departureDate": "23AUG", "returnDate": "26AUG"}},
+  {{"departureDate": "24AUG", "returnDate": "27AUG"}},
+  {{"departureDate": "25AUG", "returnDate": "28AUG"}},
+  {{"departureDate": "26AUG", "returnDate": "29AUG"}},
+  {{"departureDate": "27AUG", "returnDate": "30AUG"}},
+  {{"departureDate": "28AUG", "returnDate": "31AUG"}},
+  {{"departureDate": "29AUG", "returnDate": "01SEP"}},
+  {{"departureDate": "30AUG", "returnDate": "02SEP"}},
+  {{"departureDate": "31AUG", "returnDate": "03SEP"}}
+]
+
 REGLAS DE CÁLCULO Y FORMATO ESTRICTO:
 Extracción de duración: Busca un número seguido de "noches", "días", "semana" (7 días), o "quincena" (15 días).
 
